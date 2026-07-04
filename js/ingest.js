@@ -35,8 +35,11 @@ export async function ingestGithub(url, token, onProgress) {
   const ref = parsed.ref || info.default_branch;
   onProgress?.(`Listing files on ${ref}…`);
   const tree = await gh(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(ref)}?recursive=1`, token);
+  const LOW_PRIORITY = /(^|\/)(examples?|docs?|docs_src|samples?|demos?|benchmarks?|fixtures|e2e|__tests__|tests?|spec)(\/|$)/i;
   const wanted = tree.tree
     .filter(t => t.type === 'blob' && (isAnalyzableFile(t.path, t.size) || isManifest(t.path)))
+    // when a repo exceeds the cap, keep core source over examples/docs/tests
+    .sort((a, b) => (LOW_PRIORITY.test(a.path) ? 1 : 0) - (LOW_PRIORITY.test(b.path) ? 1 : 0))
     .slice(0, MAX_FILES);
   if (!wanted.length) throw new Error('No JS/TS/Python source files found in this repository.');
   const files = [];

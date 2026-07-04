@@ -67,6 +67,7 @@ function parseJS(src) {
 function parsePY(src) {
   const imports = [];
   const exports = [];
+  const hasMain = src.includes('__main__');
   let m;
   const fromRe = /^\s*from\s+([\w.]+)\s+import\s+/gm;
   while ((m = fromRe.exec(src))) imports.push(m[1]);
@@ -79,7 +80,7 @@ function parsePY(src) {
   const routes = [];
   const flaskRe = /@\s*(?:app|bp|blueprint|router)\.(?:route|get|post|put|delete|patch)\(\s*['"]([^'"\n]+)['"]/g;
   while ((m = flaskRe.exec(src))) routes.push(m[1]);
-  return { imports, exports, routes };
+  return { imports, exports, routes, hasMain };
 }
 
 // -------------------------------------------------------- module resolution
@@ -95,15 +96,55 @@ function normalize(path) {
 
 const JS_CANDIDATES = ['', '.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs', '/index.js', '/index.ts', '/index.jsx', '/index.tsx'];
 
+// Suffix-match a bare module path (from a tsconfig alias) against real files.
+// Only accepts unambiguous-enough matches; prefers the shortest path.
+function suffixMatch(cand, fileSet) {
+  let best = null;
+  for (const ext of JS_CANDIDATES) {
+    const target = cand + ext;
+    for (const f of fileSet) {
+      if (f === target || f.endsWith('/' + target)) {
+        if (!best || f.length < best.length) best = f;
+      }
+    }
+    if (best) return best;
+  }
+  return null;
+}
+
 function resolveImport(fromPath, spec, fileSet, l) {
   if (l === 'js') {
-    if (!spec.startsWith('.') && !spec.startsWith('/')) return null; // external package
-    const dir = fromPath.split('/').slice(0, -1).join('/');
-    const base = normalize(dir ? dir + '/' + spec : spec);
-    for (const c of JS_CANDIDATES) {
-      if (fileSet.has(base + c)) return base + c;
+    if (spec.startsWith('.') || spec.startsWith('/')) {
+      const dir = fromPath.split('/').slice(0, -1).join('/');
+      const base = normalize(dir ? dir + '/' + spec : spec);
+      for (const c of JS_CANDIDATES) {
+        if (fileSet.has(base + c)) return base + c;
+      }
+      // TS-ESM convention: source imports './x.js' but the file on disk is x.ts
+      const esm = base.match(/^(.*)\.(m|c)?js$/);
+      if (esm) {
+        for (const ext of ['.ts', '.tsx', `.${esm[2] || ''}ts`]) {
+          if (fileSet.has(esm[1] + ext)) return esm[1] + ext;
+        }
+      }
+      return null;
     }
-    return null;
+    // tsconfig path aliases: '@/x', '~/x', '#x' — strip the alias prefix and
+    // suffix-match against the file tree
+    const aliasMatch = spec.match(/^(?:@\/|~\/|#)(.+)$/);
+    if (aliasMatch) return suffixMatch(aliasMatch[1], fileSet);
+    // workspace packages: '@scope/name' or '@scope/name/sub' → packages/name/…
+    const ws = spec.match(/^@[\w.-]+\/([\w.-]+)(?:\/(.+))?$/);
+    if (ws) {
+      const [, name, sub] = ws;
+      for (const root of ['packages/', 'libs/', 'apps/', '']) {
+        for (const c of sub ? [`${root}${name}/src/${sub}`, `${root}${name}/${sub}`] : [`${root}${name}/src/index`, `${root}${name}/index`, `${root}${name}/src/main`]) {
+          const hit = suffixMatch(c, fileSet);
+          if (hit) return hit;
+        }
+      }
+    }
+    return null; // genuine external package
   }
   // python: dotted module path → try as file relative to repo root and to file dir
   const rel = spec.replace(/^\.+/, '').split('.').join('/');
@@ -123,6 +164,18 @@ function resolveImport(fromPath, spec, fileSet, l) {
   for (const c of candidates) {
     if (fileSet.has(c + '.py')) return c + '.py';
     if (fileSet.has(c + '/__init__.py')) return c + '/__init__.py';
+  }
+  // monorepo fallback: installed-package imports (langchain_core.x) live under
+  // nested roots (libs/core/langchain_core/x.py) — suffix-match, but only for
+  // dotted modules (rel contains '/') to avoid ambiguous single names
+  if (rel.includes('/')) {
+    let best = null;
+    for (const f of fileSet) {
+      if (f.endsWith('/' + rel + '.py') || f.endsWith('/' + rel + '/__init__.py')) {
+        if (!best || f.length < best.length) best = f;
+      }
+    }
+    return best;
   }
   return null;
 }
@@ -163,6 +216,10 @@ const CLUSTER_ORDER = ['client', 'entry', 'routes', 'services', 'data', 'externa
 
 export function analyze(files, meta = {}) {
   const codeFiles = files.filter(f => isAnalyzableFile(f.path, f.size));
+  if (!codeFiles.length) {
+    const exts = [...new Set(files.map(f => f.path.split('.').pop()))].slice(0, 8).join(', ');
+    throw new Error(`No JavaScript/TypeScript or Python source found (saw: ${exts}). ArchMap's deep analysis currently supports JS/TS and Python — other languages are on the roadmap.`);
+  }
   const fileSet = new Set(codeFiles.map(f => f.path));
   const parsedMap = new Map();
   const detectedDeps = { hasClientFw: false, frameworks: new Set() };
@@ -226,8 +283,14 @@ export function analyze(files, meta = {}) {
 
   // dead code: file-level (no importers, not entry/client/test), then export-level grep
   const allSource = codeFiles.map(f => ({ path: f.path, content: f.content }));
+  const STANDALONE_DIRS = /(^|\/)(examples?|docs?|docs_src|samples?|demos?|scripts?|benchmarks?)(\/|$)/i;
   for (const fi of fileInfo) {
     if (fi.cluster === 'entry' || fi.cluster === 'client' || fi.cluster === 'tests') continue;
+    // examples/docs/scripts are standalone by design — never imported, not dead
+    if (STANDALONE_DIRS.test(fi.path)) continue;
+    // route files are invoked by the framework, __main__ files are CLI scripts —
+    // neither is dead just because nothing imports it
+    if (fi.parsed.routes.length || fi.parsed.hasMain) continue;
     if ((inDeg.get(fi.path) || 0) > 0) continue;
     // file has no internal importers — check if any export name appears elsewhere
     const referenced = fi.parsed.exports.some(name =>
@@ -244,17 +307,31 @@ export function analyze(files, meta = {}) {
     overflow.set(fi.cluster, (overflow.get(fi.cluster) || 0) + 1);
   }
 
-  // tags from top-level dirs
+  // tags from directory structure; when one top-level dir dominates (monorepo
+  // apps/ or src/), drill one segment deeper so filters stay meaningful
+  const tagOf = (path, depth) => {
+    const parts = path.split('/');
+    return parts.length > depth ? parts.slice(0, depth).join('/') : null;
+  };
+  let tagDepth = 1;
+  {
+    const top = new Map();
+    for (const fi of selected) {
+      const t = tagOf(fi.path, 1);
+      if (t) top.set(t, (top.get(t) || 0) + 1);
+    }
+    const max = Math.max(0, ...top.values());
+    if (top.size <= 2 && max > selected.length * 0.7) tagDepth = 2;
+  }
   const tagCount = new Map();
   for (const fi of selected) {
-    const parts = fi.path.split('/');
-    const t = parts.length > 1 ? parts[0] : null;
+    const t = tagOf(fi.path, tagDepth);
     if (t) tagCount.set(t, (tagCount.get(t) || 0) + 1);
   }
   const tags = [...tagCount.entries()].filter(([, c]) => c >= 2).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([t]) => t);
   const tagsFor = (path) => {
-    const t = path.split('/')[0];
-    return tags.includes(t) ? ['all', t] : ['all'];
+    const t = tagOf(path, tagDepth);
+    return t && tags.includes(t) ? ['all', t] : ['all'];
   };
 
   const nodeId = (p) => 'f:' + p;
@@ -371,34 +448,38 @@ function markCriticalPath(nodes, edges) {
     if (!adj.has(e.from)) adj.set(e.from, []);
     adj.get(e.from).push(e);
   }
-  const entry = nodes.filter(n => n.cluster === 'entry')[0]
-    || nodes.filter(n => !n.aggregate && n.cluster !== 'external').sort((a, b) => (adj.get(b.id)?.length || 0) - (adj.get(a.id)?.length || 0))[0];
-  if (!entry) return;
-  // BFS from entry, keep the longest shortest-path chain that ends at data/external
-  const prev = new Map([[entry.id, null]]);
-  const queue = [entry.id];
-  let best = entry.id, bestScore = 0;
-  while (queue.length) {
-    const cur = queue.shift();
-    for (const e of adj.get(cur) || []) {
-      if (prev.has(e.to)) continue;
-      prev.set(e.to, cur);
-      queue.push(e.to);
-      const n = byId.get(e.to);
-      const depth = pathLen(prev, e.to);
-      const score = depth + ((n?.cluster === 'data' || n?.cluster === 'external') ? 3 : 0);
-      if (score > bestScore) { bestScore = score; best = e.to; }
+  // try the entry node first; if it yields no path, fall back to the highest
+  // fan-out nodes (some libraries have entries with no visible out-edges)
+  const byOutDeg = nodes
+    .filter(n => !n.aggregate && n.cluster !== 'external' && n.cluster !== 'tests')
+    .sort((a, b) => (adj.get(b.id)?.length || 0) - (adj.get(a.id)?.length || 0));
+  const candidates = [...nodes.filter(n => n.cluster === 'entry'), ...byOutDeg.slice(0, 3)];
+  for (const entry of candidates) {
+    const prev = new Map([[entry.id, null]]);
+    const queue = [entry.id];
+    let best = entry.id, bestScore = 0;
+    while (queue.length) {
+      const cur = queue.shift();
+      for (const e of adj.get(cur) || []) {
+        if (prev.has(e.to)) continue;
+        prev.set(e.to, cur);
+        queue.push(e.to);
+        const n = byId.get(e.to);
+        const depth = pathLen(prev, e.to);
+        const score = depth + ((n?.cluster === 'data' || n?.cluster === 'external') ? 3 : 0);
+        if (score > bestScore) { bestScore = score; best = e.to; }
+      }
     }
-  }
-  // walk back
-  const pathIds = [];
-  for (let cur = best; cur; cur = prev.get(cur)) pathIds.push(cur);
-  if (pathIds.length < 2) return;
-  const pathSet = new Set(pathIds);
-  for (const n of nodes) if (pathSet.has(n.id)) n.critical = true;
-  for (let i = pathIds.length - 1; i > 0; i--) {
-    const e = edges.find(e => e.from === pathIds[i] && e.to === pathIds[i - 1]);
-    if (e) e.kind = 'critical';
+    const pathIds = [];
+    for (let cur = best; cur; cur = prev.get(cur)) pathIds.push(cur);
+    if (pathIds.length < 2) continue;
+    const pathSet = new Set(pathIds);
+    for (const n of nodes) if (pathSet.has(n.id)) n.critical = true;
+    for (let i = pathIds.length - 1; i > 0; i--) {
+      const e = edges.find(e => e.from === pathIds[i] && e.to === pathIds[i - 1]);
+      if (e) e.kind = 'critical';
+    }
+    return;
   }
 }
 
