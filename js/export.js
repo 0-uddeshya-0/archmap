@@ -16,7 +16,7 @@ export async function downloadHtml(data) {
   ]);
   const renderInline = renderJs.replace(/^export\s+/gm, '');
   const html = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,6 +31,7 @@ export async function downloadHtml(data) {
     <button id="zoom-out" title="Zoom out">−</button>
     <button id="zoom-fit" title="Fit">Fit</button>
     <button id="zoom-in" title="Zoom in">+</button>
+    <button id="theme-toggle" class="ghost theme-toggle" title="Toggle light/dark theme">◐</button>
   </div>
 </header>
 <main class="map-layout">
@@ -45,6 +46,13 @@ r.setData(ARCHMAP_DATA);
 document.getElementById('zoom-in').onclick = () => r.zoom(1.25);
 document.getElementById('zoom-out').onclick = () => r.zoom(0.8);
 document.getElementById('zoom-fit').onclick = () => r.fit();
+document.getElementById('theme-toggle').onclick = () => {
+  const el = document.documentElement;
+  const next = el.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  el.setAttribute('data-theme', next);
+  document.getElementById('theme-toggle').textContent = next === 'light' ? '◑' : '◐';
+  r.draw();
+};
 window.addEventListener('resize', () => r.fit());
 </script>
 </body>
