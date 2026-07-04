@@ -17,7 +17,7 @@ ArchMap turns a repository into an interactive architecture map — entry points
 
 ## What the analyzer computes (no AI required)
 
-- Real import graph for **JS/TS and Python** (imports, requires, dynamic imports, `from x import y`)
+- Real dependency graph for **ten languages**: JS/TS and Python (path-resolved imports, tsconfig aliases, monorepo packages) plus C#, Go, Java, Kotlin, Rust, Ruby, PHP, and C/C++ via a two-pass symbol table — each file's namespace/package declarations are matched against imports, the approach proven by [emerge](https://github.com/glato/emerge)
 - Cluster inference: client / entry / routes / services / data / external / tests
 - HTTP route extraction (Express-style `app.get(...)`, Flask/FastAPI decorators, `urls.py`)
 - **Critical path** from the entry point to the data/external layer

@@ -35,7 +35,7 @@ export async function ingestGithub(url, token, onProgress) {
   const ref = parsed.ref || info.default_branch;
   onProgress?.(`Listing files on ${ref}…`);
   const tree = await gh(`/repos/${owner}/${repo}/git/trees/${encodeURIComponent(ref)}?recursive=1`, token);
-  const LOW_PRIORITY = /(^|\/)(examples?|docs?|docs_src|samples?|demos?|benchmarks?|fixtures|e2e|__tests__|tests?|spec)(\/|$)/i;
+  const LOW_PRIORITY = /(^|\/)(examples?|docs?|docs_src|samples?|demos?|benchmarks?|fixtures|e2e|__tests__|tests?|spec)(\/|$)|(^|\/)Packages\/com\./i;
   const wanted = tree.tree
     .filter(t => t.type === 'blob' && (isAnalyzableFile(t.path, t.size) || isManifest(t.path)))
     // when a repo exceeds the cap, keep core source over examples/docs/tests

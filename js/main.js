@@ -6,6 +6,19 @@ import { downloadJson, downloadHtml } from './export.js';
 
 const $ = (id) => document.getElementById(id);
 
+// ------------------------------------------------------------ theme
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('archmap.theme', theme);
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => { b.textContent = theme === 'light' ? '◑' : '◐'; });
+}
+applyTheme(localStorage.getItem('archmap.theme') || 'dark');
+document.querySelectorAll('[data-theme-toggle]').forEach(b => b.addEventListener('click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+  if (currentData && !app.hidden) renderer.draw(); // re-read theme colors
+}));
+
 const landing = $('landing'), app = $('app');
 const renderer = new MapRenderer($('map'), $('sidebar'), $('chips'));
 let currentData = null;

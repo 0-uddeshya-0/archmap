@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,6 +17,7 @@
     <nav>
       <a href="#how">How it works</a>
       <a href="https://github.com/0-uddeshya-0/archmap" target="_blank" rel="noopener">GitHub</a>
+      <button class="ghost theme-toggle" data-theme-toggle title="Toggle light/dark theme" aria-label="Toggle theme">◐</button>
       <button id="open-settings" class="ghost">Settings</button>
     </nav>
   </header>
@@ -30,7 +31,7 @@
   <section class="sources">
     <div class="card" id="card-github">
       <h2>GitHub repository</h2>
-      <p>Paste any public repo URL. Private repos work with a token.</p>
+      <p>Paste any public repo URL. Private repos work with a token. JS/TS, Python, C#, Go, Java, Kotlin, Rust, Ruby, PHP, C/C++.</p>
       <div class="row">
         <input id="gh-url" type="text" placeholder="https://github.com/owner/repo" spellcheck="false">
         <button id="gh-go" class="primary">Map it</button>
@@ -70,7 +71,7 @@
   <section id="how" class="how">
     <h2>How it works</h2>
     <div class="steps">
-      <div><b>1 · Parse.</b> ArchMap reads JS/TS and Python sources, extracts imports, exports, and route definitions, and resolves the real dependency graph. Computed truth — nothing hallucinated.</div>
+      <div><b>1 · Parse.</b> ArchMap reads sources in ten languages (JS/TS, Python, C#, Go, Java, Kotlin, Rust, Ruby, PHP, C/C++), extracts imports, exports, namespaces, and route definitions, and resolves the real dependency graph. Computed truth — nothing hallucinated.</div>
       <div><b>2 · Structure.</b> Files are clustered into entry / routes / services / data / external columns, the critical path from entry to data is traced, and exports with zero live callers are flagged as dead code.</div>
       <div><b>3 · Explain (optional).</b> Add your Anthropic API key in Settings and Claude annotates each node in plain English, plus writes maintainer findings. The key stays in your browser's localStorage; calls go straight to api.anthropic.com.</div>
       <div><b>4 · Share.</b> Export a single self-contained HTML file — the same deliverable as the original architecture-map skill — or an archmap.json anyone can re-import here.</div>
@@ -92,6 +93,7 @@
       <button id="zoom-out">−</button>
       <button id="zoom-fit">Fit</button>
       <button id="zoom-in">+</button>
+      <button class="ghost theme-toggle" data-theme-toggle title="Toggle light/dark theme" aria-label="Toggle theme">◐</button>
       <button id="open-settings-2" class="ghost">⚙</button>
     </div>
   </header>

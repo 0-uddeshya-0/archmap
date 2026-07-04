@@ -1,11 +1,25 @@
 // SVG renderer: column-cluster layout, cubic-bezier edges, pan/zoom,
 // hover/click selection, filter chips, sidebar detail.
 
-const COLORS = {
-  client: '#4ea1ff', route: '#7bd389', service: '#c792ea', db: '#ffb86b',
-  external: '#ff6b9d', critical: '#ff3860', muted: '#8a8a8a',
-};
-const EDGE_COLORS = { critical: '#ff3860', api: '#ff7a45', db: '#ffb86b', mount: '#4ea1ff', normal: '#555' };
+// Colors come from CSS custom properties so the map follows the active theme.
+function readTheme() {
+  const s = getComputedStyle(document.documentElement);
+  const v = (name, fb) => (s.getPropertyValue(name) || fb).trim() || fb;
+  const colors = {
+    client: v('--client', '#4ea1ff'), route: v('--route', '#7bd389'),
+    service: v('--service', '#c792ea'), db: v('--db', '#ffb86b'),
+    external: v('--external', '#ff6b9d'), critical: v('--critical', '#ff3860'),
+    muted: v('--neutral', '#8a8a8a'),
+  };
+  return {
+    colors,
+    edges: { critical: colors.critical, api: v('--accent-2', '#ff7a45'), db: colors.db, mount: colors.client, normal: v('--edge-normal', '#555555') },
+    nodeFill: v('--node-fill', '#181818'),
+    text: v('--text', '#e8e8e8'),
+    muted: v('--muted', '#8a8a8a'),
+    badgeInk: v('--accent-ink', '#111111'),
+  };
+}
 
 const NODE_W = 200, NODE_H = 54, GAP_Y = 18, COL_GAP = 130, PAD = 40;
 
@@ -34,19 +48,26 @@ export class MapRenderer {
     const { clusters, nodes } = this.data;
     let x = PAD;
     this.clusterBoxes = [];
+    const INNER_GAP = 16;
     for (const c of clusters) {
       const cNodes = nodes.filter(n => n.cluster === c.id);
       if (!cNodes.length) continue;
-      let y = PAD + 44;
-      for (const n of cNodes) {
-        n.x = x; n.y = y; n.w = NODE_W; n.h = NODE_H;
-        y += NODE_H + GAP_Y;
-      }
-      this.clusterBoxes.push({ ...c, x: x - 14, y: PAD, w: NODE_W + 28, h: y - PAD - GAP_Y + 16, count: cNodes.length });
-      x += NODE_W + COL_GAP;
+      // tall clusters wrap into multiple sub-columns so the map stays readable
+      const cols = Math.max(1, Math.ceil(cNodes.length / 20));
+      const rows = Math.ceil(cNodes.length / cols);
+      cNodes.forEach((n, i) => {
+        const col = Math.floor(i / rows), row = i % rows;
+        n.x = x + col * (NODE_W + INNER_GAP);
+        n.y = PAD + 44 + row * (NODE_H + GAP_Y);
+        n.w = NODE_W; n.h = NODE_H;
+      });
+      const boxW = cols * NODE_W + (cols - 1) * INNER_GAP + 28;
+      const boxH = 44 + rows * (NODE_H + GAP_Y) - GAP_Y + 16;
+      this.clusterBoxes.push({ ...c, x: x - 14, y: PAD, w: boxW, h: boxH, count: cNodes.length });
+      x += boxW - 28 + NODE_W * 0 + COL_GAP;
     }
     this.worldW = x + PAD;
-    this.worldH = Math.max(...this.clusterBoxes.map(b => b.y + b.h), 400) + PAD;
+    this.worldH = Math.max(...this.clusterBoxes.map(b => b.y + b.h + PAD), 400) + PAD;
   }
 
   visible(item) {
@@ -64,6 +85,8 @@ export class MapRenderer {
 
   draw() {
     const { nodes, edges } = this.data;
+    const T = readTheme();
+    const COLORS = T.colors, EDGE_COLORS = T.edges;
     const byId = new Map(nodes.map(n => [n.id, n]));
     const conn = this._connectivity();
     const sel = this.selected;
@@ -122,13 +145,13 @@ export class MapRenderer {
       const stroke = n.critical ? COLORS.critical : color;
       const sw = n.critical ? 2.4 : (n.id === sel ? 2.2 : 1.3);
       g += `<g class="node" data-id="${esc(n.id)}" opacity="${dim ? 0.15 : 1}" style="cursor:pointer">`;
-      g += `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="9" fill="#181818" stroke="${stroke}" stroke-width="${sw}"/>`;
-      g += `<text x="${n.x + 12}" y="${n.y + 22}" fill="#e8e8e8" font-size="12.5" font-weight="600">${esc(trunc(n.label, 26))}</text>`;
-      const subColor = n.dead ? COLORS.critical : '#8a8a8a';
+      g += `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="9" fill="${T.nodeFill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      g += `<text x="${n.x + 12}" y="${n.y + 22}" fill="${T.text}" font-size="12.5" font-weight="600">${esc(trunc(n.label, 26))}</text>`;
+      const subColor = n.dead ? COLORS.critical : T.muted;
       g += `<text x="${n.x + 12}" y="${n.y + 40}" fill="${subColor}" font-size="10.5">${esc(trunc(n.sub || '', 30))}</text>`;
       const fixes = this.data.fixes?.[n.id]?.length, bugs = this.data.bugs?.[n.id]?.length;
-      if (fixes) g += badge(n.x + n.w - (bugs ? 34 : 12), n.y - 2, '#7bd389', fixes);
-      if (bugs) g += badge(n.x + n.w - 12, n.y - 2, '#ff3860', bugs);
+      if (fixes) g += badge(n.x + n.w - (bugs ? 34 : 12), n.y - 2, COLORS.route, fixes, T.badgeInk);
+      if (bugs) g += badge(n.x + n.w - 12, n.y - 2, COLORS.critical, bugs, '#ffffff');
       g += `</g>`;
     }
     g += `</g>`;
@@ -194,11 +217,11 @@ export class MapRenderer {
         ${d.ai?.overview ? `<h3>Plain-English overview</h3><p>${esc(d.ai.overview)}</p>` : ''}
         <h3>Legend</h3>
         <ul class="legend">
-          <li><span style="color:#ff3860">━</span> critical path</li>
-          <li><span style="color:#ffb86b">━</span> database</li>
-          <li><span style="color:#ff7a45">━</span> external API</li>
-          <li><span style="color:#4ea1ff">━</span> entry → mount</li>
-          <li><span style="color:#666">━</span> import (toggle "Show all wires")</li>
+          <li><span style="color:var(--critical)">━</span> critical path</li>
+          <li><span style="color:var(--db)">━</span> database</li>
+          <li><span style="color:var(--accent-2)">━</span> external API</li>
+          <li><span style="color:var(--client)">━</span> entry → mount</li>
+          <li><span style="color:var(--edge-normal)">━</span> import (toggle "Show all wires")</li>
         </ul>
         <p class="meta">Hover a node for details; click to pin and dim unrelated nodes.</p>`;
       return;
@@ -275,6 +298,6 @@ function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 function trunc(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
-function badge(cx, cy, color, count) {
-  return `<circle cx="${cx}" cy="${cy}" r="9" fill="${color}"/><text x="${cx}" y="${cy + 3.5}" fill="#111" font-size="10" font-weight="700" text-anchor="middle">${count}</text>`;
+function badge(cx, cy, color, count, ink = '#111') {
+  return `<circle cx="${cx}" cy="${cy}" r="9" fill="${color}"/><text x="${cx}" y="${cy + 3.5}" fill="${ink}" font-size="10" font-weight="700" text-anchor="middle">${count}</text>`;
 }
