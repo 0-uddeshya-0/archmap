@@ -1,7 +1,7 @@
 import { analyze } from './analyze.js';
 import { ingestGithub, ingestDirectoryPicker, ingestDroppedItems, ingestFileInput, ingestWebsite } from './ingest.js';
 import { MapRenderer } from './render.js';
-import { enrichMap, getKey, setKey } from './ai.js';
+import { enrichMap, findBugs, getKey, setKey } from './ai.js';
 import { downloadJson, downloadHtml } from './export.js';
 
 const $ = (id) => document.getElementById(id);
@@ -164,6 +164,86 @@ $('ai-enrich').addEventListener('click', async () => {
   }
 });
 
+// ------------------------------------------------------------ search
+
+let searchTimer;
+$('node-search').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    const q = $('node-search').value.trim();
+    if (q.length >= 2) renderer.findAndFocus(q);
+  }, 350);
+});
+$('node-search').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const q = $('node-search').value.trim();
+  if (q && !renderer.findAndFocus(q)) toast(`No node matches "${q}".`, true);
+});
+
+// ------------------------------------------------------------ debug overlay
+
+function applyDebug(obj) {
+  if (!currentData) return;
+  if (obj.bugs && typeof obj.bugs === 'object') currentData.bugs = { ...(currentData.bugs || {}), ...obj.bugs };
+  if (obj.fixes && typeof obj.fixes === 'object') currentData.fixes = { ...(currentData.fixes || {}), ...obj.fixes };
+  renderer.debugMode = true;
+  renderer.setData(currentData);
+}
+
+$('open-debug').addEventListener('click', () => {
+  if (!currentData) return toast('Open a codebase first.', true);
+  $('debug').hidden = false;
+});
+$('debug-close').addEventListener('click', () => { $('debug').hidden = true; });
+
+$('debug-apply').addEventListener('click', () => {
+  const raw = $('debug-json').value.trim();
+  if (!raw) { $('debug').hidden = true; return; }
+  try {
+    const obj = JSON.parse(raw);
+    if (!obj.bugs && !obj.fixes) throw new Error('Expected a { "bugs": {…}, "fixes": {…} } object.');
+    applyDebug(obj);
+    $('debug').hidden = true;
+    toast('Debug overlay applied — toggle 🐛 Bugs & repairs on the map.');
+  } catch (err) { toast('Invalid JSON: ' + err.message, true); }
+});
+
+$('debug-import').addEventListener('click', () => $('debug-json-input').click());
+$('debug-json-input').addEventListener('change', async () => {
+  const file = $('debug-json-input').files[0];
+  if (!file) return;
+  try {
+    applyDebug(JSON.parse(await file.text()));
+    $('debug').hidden = true;
+    toast('Debug overlay imported.');
+  } catch (err) { toast('Invalid debug JSON: ' + err.message, true); }
+});
+
+$('debug-clear').addEventListener('click', () => {
+  if (!currentData) return;
+  currentData.bugs = {}; currentData.fixes = {};
+  renderer.debugMode = false;
+  renderer.setData(currentData);
+  $('debug').hidden = true;
+  toast('Debug overlay cleared.');
+});
+
+$('debug-ai').addEventListener('click', async () => {
+  if (!currentData) return;
+  if (!getKey()) { $('debug').hidden = true; openSettings(); return toast('Add your Anthropic API key first — it stays in this browser.', true); }
+  if (!currentFiles) return toast('AI bug-finding needs source files — re-open the repo via GitHub or local folder.', true);
+  $('debug').hidden = true;
+  showProgress('AI: scanning for bugs…');
+  try {
+    await findBugs(currentData, currentFiles, updateProgress);
+    hideProgress();
+    renderer.debugMode = true;
+    renderer.setData(currentData);
+    const nb = Object.values(currentData.bugs || {}).reduce((s, a) => s + a.length, 0);
+    toast(nb ? `Found ${nb} potential bug${nb === 1 ? '' : 's'} — see the red nodes ✦` : 'No obvious bugs found in the scanned files.');
+  } catch (err) { hideProgress(); toast(err.message, true); }
+});
+
 // ------------------------------------------------------------ settings
 
 function openSettings() {
@@ -183,7 +263,7 @@ $('settings-save').addEventListener('click', () => {
   toast('Settings saved (this browser only).');
 });
 document.querySelectorAll('.overlay').forEach(o => o.addEventListener('click', (e) => {
-  if (e.target === o && o.id === 'settings') o.hidden = true;
+  if (e.target === o && (o.id === 'settings' || o.id === 'debug')) o.hidden = true;
 }));
 
 // ------------------------------------------------------------ deep link

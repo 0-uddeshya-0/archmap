@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax-check ES modules
+        run: |
+          set -e
+          for f in js/*.js; do
+            cp "$f" _check.mjs
+            node --check _check.mjs
+            rm _check.mjs
+          done
+      - name: Static assets present
+        run: |
+          test -f index.html
+          test -f css/style.css
+          test -f skill/architecture-map/SKILL.md
