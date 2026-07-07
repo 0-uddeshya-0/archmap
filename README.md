@@ -28,6 +28,24 @@ ArchMap turns a repository into an interactive architecture map — entry points
 
 Add an Anthropic API key in **Settings** and hit **✦ AI enrich**: Claude (`claude-opus-4-8`) reads excerpts of the most important files and writes plain-English descriptions per node, a system overview, and maintainer findings. The key is stored only in your browser's `localStorage`; requests go directly to `api.anthropic.com`.
 
+## Debugging overlay — for vibe-coded apps
+
+Turn the map into a debugging view: nodes with **open bugs glow red**, nodes with **planned repairs glow green**, and clicking any node opens a structured panel — **known bugs** (severity + `file:line` evidence + a caution to re-verify), **planned fixes**, what the file does, and what feeds it.
+
+Load bugs three ways:
+
+- **✦ Find bugs with AI** — Claude scans the most important files and reports *only* problems it can actually see, each with `path:line` evidence (bring your own key; nothing is uploaded).
+- **Paste or import** your own list as JSON — `{ "bugs": { "<node-id>": [{ "sev": "HIGH", "t": "…", "ev": ["src/app.js:42"] }] }, "fixes": { "<node-id>": [{ "t": "…" }] } }` — stays in your browser.
+- **Ship it in an `archmap.json`** from the Claude Code skill.
+
+Toggle it with the **🐛 Bugs & repairs** chip. Bugs and fixes round-trip through both the JSON and the self-contained HTML export.
+
+## Navigating a big map
+
+- **Search** any file by name or path in the top bar — Enter jumps to it.
+- **Hover** a node to spotlight just its connections; **click** to pin; **double-click** to zoom to it.
+- **Filter** by cluster or feature with the chips, or **Show all wires** for the full import graph.
+
 ## Export
 
 - **Export HTML** — one self-contained file (embedded data + renderer), openable anywhere with no server. Same deliverable as the original `architecture-map` skill.

@@ -301,3 +301,62 @@ body.standalone, body.app-mode { display: flex; flex-direction: column; height: 
 @media (max-width: 760px) {
   .sidebar { display: none; }
 }
+
+/* --------------------------------------------------- search + debug UI */
+.node-search {
+  width: 168px; padding: 6px 11px; font-size: 13px;
+  background: var(--panel-2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 999px; outline: none;
+  transition: border-color 0.15s var(--ease-out), width 0.2s var(--ease-out);
+}
+.node-search:focus { border-color: var(--accent); width: 210px; }
+.node-search::placeholder { color: var(--muted); }
+@media (max-width: 1000px) { .node-search, .node-search:focus { width: 132px; } }
+
+.chip.debug-chip.active {
+  border-color: var(--critical);
+  color: var(--critical);
+  background: color-mix(in srgb, var(--critical) 10%, transparent);
+}
+
+/* severity pills + bug / fix lists in the detail panel */
+.buglist, .fixlist { padding-left: 0; list-style: none; }
+.buglist .bug { margin: 8px 0; padding-left: 10px; border-left: 2px solid color-mix(in srgb, var(--critical) 55%, transparent); }
+.bugline { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.sev {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+  padding: 1px 7px; border-radius: 999px; text-transform: uppercase;
+}
+.sev-high { background: color-mix(in srgb, var(--critical) 20%, transparent); color: var(--critical); border: 1px solid color-mix(in srgb, var(--critical) 45%, transparent); }
+.sev-med  { background: color-mix(in srgb, var(--db) 22%, transparent); color: var(--db); border: 1px solid color-mix(in srgb, var(--db) 45%, transparent); }
+.sev-low, .sev-bug { background: color-mix(in srgb, var(--muted) 20%, transparent); color: var(--muted); border: 1px solid color-mix(in srgb, var(--muted) 40%, transparent); }
+.bug .ref { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: var(--muted); }
+.bug .bugtext { flex: 1 1 100%; color: var(--text-soft); font-size: 13px; }
+.bug .ev { margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px; }
+.bug .ev code { font-size: 11px; color: var(--db); }
+.bug .warn { margin-top: 3px; font-size: 12px; color: var(--accent-2); }
+.fixlist { counter-reset: fix; }
+.fixlist li {
+  counter-increment: fix; position: relative; margin: 6px 0 6px 26px;
+  font-size: 13px; color: var(--text-soft);
+}
+.fixlist li::before {
+  content: counter(fix); position: absolute; left: -26px; top: 0;
+  width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--route) 20%, transparent); color: var(--route);
+  border: 1px solid color-mix(in srgb, var(--route) 45%, transparent);
+}
+
+.debug-panel { width: 560px; max-width: calc(100vw - 32px); }
+.debug-textarea {
+  width: 100%; min-height: 150px; margin-top: 6px; resize: vertical;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; padding: 11px 13px; font-size: 12.5px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; outline: none;
+}
+.debug-textarea:focus { border-color: var(--accent); }
+
+/* smooth map hover affordance for nodes + connectors */
+.node { transition: opacity 0.12s var(--ease-out); }
+.edge { transition: opacity 0.12s var(--ease-out), stroke-width 0.12s var(--ease-out); }

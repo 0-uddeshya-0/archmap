@@ -32,6 +32,7 @@ export class MapRenderer {
     this.activeTag = 'all';
     this.showAllWires = false;
     this.selected = null;
+    this.debugMode = false;
     this._bindPanZoom();
   }
 
@@ -127,7 +128,7 @@ export class MapRenderer {
         d = `M ${x1} ${y1} C ${cx} ${y1}, ${cx} ${y2}, ${x2} ${y2}`;
       }
       const w = e.kind === 'critical' ? 2.4 : 1.4;
-      g += `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" opacity="${dim ? 0.08 : (e.kind === 'normal' ? 0.45 : 0.85)}" marker-end="url(#arr-${e.kind || 'normal'})"/>`;
+      g += `<path class="edge" data-from="${esc(e.from)}" data-to="${esc(e.to)}" d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" opacity="${dim ? 0.08 : (e.kind === 'normal' ? 0.4 : 0.85)}" marker-end="url(#arr-${e.kind || 'normal'})"/>`;
       if (e.label && e.label !== 'import' && !dim) {
         const gutter = Math.round((x1 + x2) / 2 / 40);
         const slot = labelSlots.get(gutter) || 0;
@@ -138,20 +139,30 @@ export class MapRenderer {
     }
 
     // nodes
+    const bugsMap = this.data.bugs || {}, fixesMap = this.data.fixes || {};
     for (const n of nodes) {
       if (!this.visible(n)) continue;
       const color = COLORS[n.color] || '#888';
-      const dim = dimNode(n);
-      const stroke = n.critical ? COLORS.critical : color;
-      const sw = n.critical ? 2.4 : (n.id === sel ? 2.2 : 1.3);
+      const openBugs = (bugsMap[n.id] || []).length;
+      const nodeFixes = (fixesMap[n.id] || []).length;
+      // in debug mode, spotlight bug/repair nodes and fade the rest
+      let dim = dimNode(n);
+      if (this.debugMode && !openBugs && !nodeFixes && n.id !== sel) dim = true;
+      let stroke = n.critical ? COLORS.critical : color;
+      let sw = n.critical ? 2.4 : (n.id === sel ? 2.2 : 1.3);
+      if (this.debugMode && openBugs) { stroke = COLORS.critical; sw = 2.6; }
+      else if (this.debugMode && nodeFixes) { stroke = COLORS.route; sw = 2.6; }
       g += `<g class="node" data-id="${esc(n.id)}" opacity="${dim ? 0.15 : 1}" style="cursor:pointer">`;
+      if (this.debugMode && (openBugs || nodeFixes) && !dim) {
+        const hc = openBugs ? COLORS.critical : COLORS.route;
+        g += `<rect x="${n.x - 4}" y="${n.y - 4}" width="${n.w + 8}" height="${n.h + 8}" rx="12" fill="${hc}1f" stroke="${hc}66" stroke-width="1.5"/>`;
+      }
       g += `<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="9" fill="${T.nodeFill}" stroke="${stroke}" stroke-width="${sw}"/>`;
       g += `<text x="${n.x + 12}" y="${n.y + 22}" fill="${T.text}" font-size="12.5" font-weight="600">${esc(trunc(n.label, 26))}</text>`;
       const subColor = n.dead ? COLORS.critical : T.muted;
       g += `<text x="${n.x + 12}" y="${n.y + 40}" fill="${subColor}" font-size="10.5">${esc(trunc(n.sub || '', 30))}</text>`;
-      const fixes = this.data.fixes?.[n.id]?.length, bugs = this.data.bugs?.[n.id]?.length;
-      if (fixes) g += badge(n.x + n.w - (bugs ? 34 : 12), n.y - 2, COLORS.route, fixes, T.badgeInk);
-      if (bugs) g += badge(n.x + n.w - 12, n.y - 2, COLORS.critical, bugs, '#ffffff');
+      if (nodeFixes) g += badge(n.x + n.w - (openBugs ? 34 : 12), n.y - 2, COLORS.route, nodeFixes, T.badgeInk);
+      if (openBugs) g += badge(n.x + n.w - 12, n.y - 2, COLORS.critical, openBugs, '#ffffff');
       g += `</g>`;
     }
     g += `</g>`;
@@ -159,8 +170,9 @@ export class MapRenderer {
 
     this.svg.querySelectorAll('.node').forEach(el => {
       el.addEventListener('click', (ev) => { ev.stopPropagation(); this.select(el.dataset.id); });
-      el.addEventListener('mouseenter', () => { if (!this.selected) this.renderSidebar(el.dataset.id); });
-      el.addEventListener('mouseleave', () => { if (!this.selected) this.renderSidebar(null); });
+      el.addEventListener('dblclick', (ev) => { ev.stopPropagation(); this.focusNode(el.dataset.id); });
+      el.addEventListener('mouseenter', () => { this._hoverHighlight(el.dataset.id); if (!this.selected) this.renderSidebar(el.dataset.id); });
+      el.addEventListener('mouseleave', () => { this._hoverClear(); if (!this.selected) this.renderSidebar(null); });
     });
     this.svg.querySelector('[data-bg]')?.addEventListener('click', () => this.select(null));
   }
@@ -182,6 +194,53 @@ export class MapRenderer {
     this.renderSidebar(id);
   }
 
+  // Lightweight hover: emphasize a node's branches without a full re-render.
+  _hoverHighlight(id) {
+    if (this.selected) return; // a pinned selection wins
+    const conn = this._connectivity();
+    const near = conn.get(id) || new Set();
+    near.add(id);
+    this.svg.querySelectorAll('.node').forEach(el => {
+      el.style.opacity = near.has(el.dataset.id) ? '1' : '0.16';
+    });
+    this.svg.querySelectorAll('.edge').forEach(el => {
+      const on = el.dataset.from === id || el.dataset.to === id;
+      el.style.opacity = on ? '0.95' : '0.05';
+      el.style.strokeWidth = on ? '2.6' : '';
+    });
+  }
+  _hoverClear() {
+    if (this.selected) return;
+    this.svg.querySelectorAll('.node').forEach(el => { el.style.opacity = ''; });
+    this.svg.querySelectorAll('.edge').forEach(el => { el.style.opacity = ''; el.style.strokeWidth = ''; });
+  }
+
+  // Center + gently zoom to a single node (double-click / search).
+  focusNode(id) {
+    const n = this.data.nodes.find(x => x.id === id);
+    if (!n) return;
+    const rect = this.svg.getBoundingClientRect();
+    const ns = Math.min(1.4, Math.max(this.scale, 0.9));
+    this.scale = ns;
+    this.tx = rect.width / 2 - (n.x + n.w / 2) * ns;
+    this.ty = rect.height / 2 - (n.y + n.h / 2) * ns;
+    this._applyTransform();
+    this.select(id);
+  }
+
+  // Find the best-matching node by label / path / sub and focus it.
+  findAndFocus(query) {
+    const q = (query || '').trim().toLowerCase();
+    if (!q) return false;
+    const N = this.data.nodes;
+    const hit = N.find(n => (n.label || '').toLowerCase() === q)
+      || N.find(n => (n.label || '').toLowerCase().includes(q))
+      || N.find(n => (n.path || '').toLowerCase().includes(q))
+      || N.find(n => (n.sub || '').toLowerCase().includes(q));
+    if (hit) { this.focusNode(hit.id); return true; }
+    return false;
+  }
+
   // ------------------------------------------------------------ chips
 
   renderChips() {
@@ -191,13 +250,17 @@ export class MapRenderer {
       html += `<button class="chip ${this.activeTag === t ? 'active' : ''}" data-tag="${esc(t)}">${esc(t)}</button>`;
     }
     html += `<button class="chip ${this.showAllWires ? 'active' : ''}" data-wires="1">Show all wires</button>`;
-    if (Object.keys(this.data.fixes || {}).length || Object.keys(this.data.bugs || {}).length) {
-      html += `<button class="chip" data-tag="__badges">Roadmap &amp; bugs</button>`;
+    const hasDebug = Object.keys(this.data.fixes || {}).length || Object.keys(this.data.bugs || {}).length;
+    if (hasDebug) {
+      html += `<button class="chip debug-chip ${this.debugMode ? 'active' : ''}" data-debug="1">🐛 Bugs &amp; repairs</button>`;
+    } else {
+      this.debugMode = false;
     }
     this.chips.innerHTML = html;
     this.chips.querySelectorAll('.chip').forEach(el => el.addEventListener('click', () => {
       if (el.dataset.wires) { this.showAllWires = !this.showAllWires; }
-      else { this.activeTag = el.dataset.tag; this.showAllWires = this.activeTag !== 'all' ? this.showAllWires : this.showAllWires; }
+      else if (el.dataset.debug) { this.debugMode = !this.debugMode; }
+      else { this.activeTag = el.dataset.tag; }
       this.renderChips(); this.draw();
     }));
   }
@@ -222,6 +285,8 @@ export class MapRenderer {
           <li><span style="color:var(--accent-2)">━</span> external API</li>
           <li><span style="color:var(--client)">━</span> entry → mount</li>
           <li><span style="color:var(--edge-normal)">━</span> import (toggle "Show all wires")</li>
+          <li><span style="color:var(--critical)">◍</span> node with open bugs</li>
+          <li><span style="color:var(--route)">◍</span> node with planned repairs</li>
         </ul>
         <p class="meta">Hover a node for details; click to pin and dim unrelated nodes.</p>`;
       return;
@@ -234,14 +299,19 @@ export class MapRenderer {
     this.sidebar.innerHTML = `
       <h2>${esc(n.label)} ${n.critical ? '<span class="crit-tag">critical path</span>' : ''}${n.dead ? '<span class="dead-tag">dead code</span>' : ''}</h2>
       ${n.path ? `<p class="path">${esc(n.path)}</p>` : ''}
-      ${n.role ? `<h3>Role</h3><p>${esc(n.role)}</p>` : ''}
+      ${bugs.length ? `<h3>Known bugs</h3><ul class="buglist">${bugs.map(b => `
+        <li class="bug">
+          <div class="bugline"><span class="sev sev-${esc(String(b.sev || 'bug').toLowerCase())}">${esc(b.sev || 'BUG')}</span>${b.ref ? `<span class="ref">${esc(b.ref)}</span>` : ''}<span class="bugtext">${esc(b.t)}</span></div>
+          ${(b.ev && b.ev.length) ? `<div class="ev">${b.ev.map(e => `<code>${esc(e)}</code>`).join(' ')}</div>` : ''}
+          ${b.warn ? `<div class="warn">⚠️ ${esc(b.warn)}</div>` : ''}
+        </li>`).join('')}</ul>` : ''}
+      ${fixes.length ? `<h3>Planned fixes</h3><ol class="fixlist">${fixes.map(f => `<li>${esc(f.t)}</li>`).join('')}</ol>` : ''}
+      ${n.role ? `<h3>What it does</h3><p>${esc(n.role)}</p>` : ''}
       ${n.plain ? `<h3>In plain English</h3><p>${esc(n.plain)}</p>` : ''}
       ${(n.notes || []).length ? `<h3>Notes</h3><ul>${n.notes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
       ${(n.routes || []).length ? `<h3>Routes</h3><ul>${n.routes.map(r => `<li><code>${esc(r)}</code></li>`).join('')}</ul>` : ''}
-      ${inc.length ? `<h3>Imported by (${inc.length})</h3><p class="meta">${esc(inc.slice(0, 10).join(', '))}</p>` : ''}
-      ${out.length ? `<h3>Depends on (${out.length})</h3><p class="meta">${esc(out.slice(0, 10).join(', '))}</p>` : ''}
-      ${fixes.length ? `<h3>Planned fixes</h3><ul>${fixes.map(f => `<li>${esc(f.t)}</li>`).join('')}</ul>` : ''}
-      ${bugs.length ? `<h3>Known bugs</h3><ul>${bugs.map(b => `<li><b>[${esc(b.sev)}]</b> ${esc(b.t)}</li>`).join('')}</ul>` : ''}`;
+      ${inc.length ? `<h3>What feeds it (${inc.length})</h3><p class="meta">${esc(inc.slice(0, 10).join(', '))}</p>` : ''}
+      ${out.length ? `<h3>Depends on (${out.length})</h3><p class="meta">${esc(out.slice(0, 10).join(', '))}</p>` : ''}`;
   }
 
   // ---------------------------------------------------------- pan/zoom
