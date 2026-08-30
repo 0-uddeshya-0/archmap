@@ -1,84 +1,218 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ArchMap — interactive architecture maps for any codebase</title>
-<meta name="description" content="Turn any repository into an interactive architecture map. Paste a GitHub URL or open a local folder — everything runs in your browser, code never leaves your machine.">
+<title>ArchMap — see any codebase as a map, not a maze</title>
+<meta name="description" content="Turn any repository into an interactive architecture map. Paste a GitHub URL or drop a folder — every wire is a real import, citable to file and line, and nothing leaves your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230F0F0F'/><circle cx='30' cy='30' r='10' fill='%234ea1ff'/><circle cx='70' cy='50' r='10' fill='%23c792ea'/><circle cx='35' cy='72' r='10' fill='%23ffb86b'/><path d='M38 34 62 46M40 66 62 56' stroke='%23ff3860' stroke-width='4'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23ffffff' stroke='%2317191c' stroke-width='6'/><circle cx='30' cy='32' r='9' fill='%231667c9'/><circle cx='68' cy='50' r='9' fill='%237c3aed'/><circle cx='34' cy='70' r='9' fill='%23b45309'/><path d='M38 36 60 46M42 66 60 54' stroke='%23ff4400' stroke-width='5'/></svg>">
 </head>
 <body>
+<!--
+THESIS: A mission briefing for the codebase you own — numbered phases, checklist
+rows, a verification stamp on every claim. Refuses the dark dev-tool hero with a
+terminal window and glow.
+OWN-WORLD: White bond paper, ink rules, typewritten mono data (Courier Prime),
+standards-manual grotesk (Archivo), one international-orange signal committed at
+block scale; GO/NO-GO stamps; dashed = dead, struck = disabled.
+STORY: "You own a codebase you can't read. Hand it over; thirty seconds later
+you're reading its real map, every wire citable. Nothing leaves this browser."
+Visitor pastes a repo URL in Mission 001 and maps it.
+FIRST VIEWPORT: Document strip up top; giant two-line statement left; Mission
+001 manifest (URL row + orange MAP IT) directly beneath; right, a live specimen
+plate of this site's own map with plain-name callouts and a GO-poll stamping.
+FORM: The Flight Plan — Apollo program documentation; candidate 7 of 7; seed 514384d1.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the
+finish review, the verdict, DESIGN.md, and every shipping raster carrying its
+provenance.
+-->
+
+<svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-play" viewBox="0 0 16 16"><path d="M5 3.5v9l7-4.5z"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 16 16"><path d="M11.5 2.5l2 2L5 13l-2.6.6L3 11z"/></symbol>
+  <symbol id="i-bug" viewBox="0 0 16 16"><circle cx="8" cy="9" r="3.5"/><path d="M8 5.5V4M4.7 6.5L3.5 5.3M11.3 6.5l1.2-1.2M3.5 9H2M14 9h-1.5M4.7 11.5l-1.2 1.2M11.3 11.5l1.2 1.2"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 16 16"><path d="M8 2v3M8 11v3M2 8h3M11 8h3M4.2 4.2l2 2M9.8 9.8l2 2M11.8 4.2l-2 2M6.2 9.8l-2 2"/></symbol>
+  <symbol id="i-export" viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3M3 12v2h10v-2"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v2M8 12.2v2M1.8 8h2M12.2 8h2M3.6 3.6l1.4 1.4M11 11l1.4 1.4M12.4 3.6L11 5M5 11l-1.4 1.4"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3"/><path d="M8 1.5V3M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M12.6 3.4l-1 1M4.4 11.6l-1 1"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 16 16"><path d="M13 9.5A5.5 5.5 0 0 1 6.5 3 5.5 5.5 0 1 0 13 9.5z"/></symbol>
+</svg>
 
 <!-- ============================== LANDING ============================== -->
 <div id="landing">
   <header class="topbar">
     <div class="brand">Arch<span>Map</span></div>
+    <div class="doc-cell">Architecture survey</div>
+    <div class="doc-cell">Runs entirely in your browser</div>
     <nav>
-      <a href="#how">How it works</a>
-      <a href="https://github.com/0-uddeshya-0/archmap" target="_blank" rel="noopener">GitHub</a>
-      <button class="ghost theme-toggle" data-theme-toggle title="Toggle light/dark theme" aria-label="Toggle theme">◐</button>
+      <a href="#phase-read">How it works</a>
+      <a href="https://github.com/0-uddeshya-0/archmap" target="_blank" rel="noopener">Source</a>
+      <button class="ghost theme-toggle icon-only" data-theme-toggle title="Switch light / dark" aria-label="Switch light or dark theme"><svg class="icon sun"><use href="#i-sun"/></svg><svg class="icon moon"><use href="#i-moon"/></svg></button>
       <button id="open-settings" class="ghost">Settings</button>
     </nav>
   </header>
 
-  <section class="hero">
-    <h1>See any codebase as a <em>map</em>, not a maze.</h1>
-    <p class="tagline">ArchMap reads a repository in your browser and draws its real architecture — entry points, routes, services, data layer, external dependencies — with critical-path highlighting, dead-code detection, and plain-English explanations. No install, no server, no upload.</p>
-    <div class="privacy-note">🔒 Analysis runs 100% client-side. Local folders never leave your machine.</div>
-  </section>
+  <main class="rail">
+    <!-- PHASE 001 · the mission -->
+    <section class="phase">
+      <div class="phase-no">001</div>
+      <div class="phase-body hero">
+        <div class="hero-grid">
+          <div>
+            <h1>See any codebase<br class="h1-br"> as a <em>map</em>, not a maze.</h1>
+            <p class="lede">You own code you didn't fully write: an app built with AI, a repository you inherited. Hand it over. <b>Thirty seconds later you're reading its real architecture</b>: what starts it, what talks to what, where the data lives, what's dead. Every wire is an import that exists in the code, citable to its exact line.</p>
+            <p class="fact-line"><span class="tick">✓</span> Nothing you load leaves this browser. There is no server to upload to.</p>
 
-  <section class="sources">
-    <div class="card" id="card-github">
-      <h2>GitHub repository</h2>
-      <p>Paste any public repo URL. Private repos work with a token. JS/TS, Python, C#, Go, Java, Kotlin, Rust, Ruby, PHP, C/C++.</p>
-      <div class="row">
-        <input id="gh-url" type="text" placeholder="https://github.com/owner/repo" spellcheck="false">
-        <button id="gh-go" class="primary">Map it</button>
+            <div class="manifest" id="sources" aria-label="Ways to load a codebase">
+              <div class="man-row primary-row">
+                <div class="man-no">A</div>
+                <div class="man-label">GitHub repository</div>
+                <div class="man-action">
+                  <input id="gh-url" type="text" placeholder="https://github.com/owner/repo" spellcheck="false" aria-label="GitHub repository URL">
+                  <button id="gh-go" class="primary">Map it</button>
+                </div>
+              </div>
+              <div class="man-row drop-target" id="card-local">
+                <div class="man-no">B</div>
+                <div class="man-label">Local folder</div>
+                <div class="man-action">
+                  <button id="pick-dir">Choose folder…</button>
+                  <p class="hint">or drag it onto this row. Files are read here, uploaded nowhere.</p>
+                  <input id="dir-input" type="file" webkitdirectory multiple hidden>
+                </div>
+              </div>
+              <div class="man-row">
+                <div class="man-no">C</div>
+                <div class="man-label">archmap.json</div>
+                <div class="man-action">
+                  <button id="import-json">Open a saved map…</button>
+                  <p class="hint">from an export, or the Claude Code skill</p>
+                  <input id="json-input" type="file" accept=".json,application/json" hidden>
+                </div>
+              </div>
+              <div class="man-row">
+                <div class="man-no">D</div>
+                <div class="man-label">Live website <span class="beta">surface only</span></div>
+                <div class="man-action">
+                  <input id="site-url" type="text" placeholder="https://example.com" spellcheck="false" aria-label="Website URL" style="max-width:220px">
+                  <button id="site-go">Scan</button>
+                  <p class="hint">pages &amp; scripts only; real architecture needs source</p>
+                </div>
+              </div>
+              <div class="man-foot">
+                <p>First time? Try <a href="#" class="sample" data-url="https://github.com/expressjs/express">expressjs/express</a> or <a href="#" class="sample" data-url="https://github.com/pallets/flask">pallets/flask</a>. Private repos work with a token in Settings.</p>
+              </div>
+            </div>
+          </div>
+
+          <aside class="specimen" aria-label="Live specimen: this site's own map">
+            <div class="spec-head">
+              <h2>Specimen</h2>
+              <span class="mono">this site, mapped by itself</span>
+            </div>
+            <div class="spec-canvas" id="spec-canvas">
+              <svg id="spec-map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Miniature architecture map of ArchMap's own source"></svg>
+              <div class="spec-ghost" id="spec-ghost" hidden>The specimen didn't load — your own repo still maps fine. Use Mission 001.</div>
+            </div>
+            <div class="go-poll" id="go-poll" aria-label="Verification poll, computed from the specimen data"></div>
+            <div class="spec-foot">
+              <button id="demo-go" class="primary">Open the full specimen</button>
+            </div>
+          </aside>
+        </div>
       </div>
-      <p class="hint">Try: <a href="#" class="sample" data-url="https://github.com/expressjs/express">expressjs/express</a> · <a href="#" class="sample" data-url="https://github.com/pallets/flask">pallets/flask</a></p>
-    </div>
+    </section>
 
-    <div class="card drop-target" id="card-local">
-      <h2>Local folder</h2>
-      <p>Drag a project folder here, or pick one. Files are read in-browser only.</p>
-      <div class="row">
-        <button id="pick-dir" class="primary">Choose folder…</button>
-        <input id="dir-input" type="file" webkitdirectory multiple hidden>
+    <!-- PHASE 002 · read -->
+    <section class="phase" id="phase-read">
+      <div class="phase-no">002</div>
+      <div class="phase-body">
+        <h2 class="phase-title">Read it <span class="plain">— what the analyzer computed, nothing invented</span></h2>
+        <p class="phase-lede">Your files arrive already sorted into layers, left to right: the front door, the routes, the working core, where data lives, the outside world. Then the map starts explaining itself.</p>
+        <div class="steps-list">
+          <div class="step-row"><div class="man-no">2.1</div><b>The tour</b><p>Short chapters walk you through your own system in plain language: where execution starts, the spine most requests travel, the files everything leans on, what's dead.</p></div>
+          <div class="step-row"><div class="man-no">2.2</div><b>Evidence</b><p>Click any wire and it shows you the exact import that created it, file and line, with a link straight to the source. A claim you can check is the only kind here.</p></div>
+          <div class="step-row"><div class="man-no">2.3</div><b>Findings</b><p>Dead code, circular imports, hot files, layering violations: surfaced automatically, each one verifiable on the canvas.</p></div>
+          <div class="step-row"><div class="man-no">2.4</div><b>Everything</b><p>Big repo? Low-traffic files wait in a searchable overflow: listed, expandable, never hidden. The whole codebase is reachable.</p></div>
+        </div>
       </div>
-      <p class="hint">Works offline once loaded. Nothing is uploaded anywhere.</p>
-    </div>
+    </section>
 
-    <div class="card" id="card-website">
-      <h2>Deployed website <span class="beta">surface map</span></h2>
-      <p>Best-effort map of a live site's public surface: pages, scripts, form endpoints. Real architecture needs source — most sites also block cross-origin reads.</p>
-      <div class="row">
-        <input id="site-url" type="text" placeholder="https://example.com" spellcheck="false">
-        <button id="site-go">Scan</button>
+    <!-- PHASE 003 · ask -->
+    <section class="phase">
+      <div class="phase-no">003</div>
+      <div class="phase-body">
+        <h2 class="phase-title">Ask it <span class="plain">— answers are computed from the graph, never generated</span></h2>
+        <p class="phase-lede">Type a question in the map's top bar. A query engine parses it and answers by computation, so the answer cannot be made up. When there's nothing to find, it says so.</p>
+        <div class="transcript" aria-label="Example exchange with the map">
+          <div class="tr-row you"><div class="tr-who">You</div><p>who imports analyze.js</p></div>
+          <div class="tr-row"><div class="tr-who">Map</div><p>6 files feed analyze.js · 7 imports · 1 hop. Highlighted on the canvas, each one clickable.</p></div>
+          <div class="tr-row you"><div class="tr-who">You</div><p>circular imports</p></div>
+          <div class="tr-row"><div class="tr-who">Map</div><p>0. None. That's good. Nothing was invented to fill the gap.</p></div>
+          <div class="tr-row you"><div class="tr-who">You</div><p>path from main.js to render.js</p></div>
+          <div class="tr-row"><div class="tr-who">Map</div><p>Route main.js → render.js · 1 hop. The journey, step by step, every step a real import.</p></div>
+          <div class="tr-note">These are real answers from the specimen above. Reach, routes, dead code, biggest files, "explain X". With an API key, any phrasing gets translated into a query. Translated: the answer is still computed.</div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="card" id="card-import">
-      <h2>Import archmap.json</h2>
-      <p>Load a map generated by the ArchMap Claude Code skill or exported earlier — deep AI analysis done locally, shared and viewed here.</p>
-      <div class="row">
-        <button id="import-json">Open .archmap.json…</button>
-        <input id="json-input" type="file" accept=".json,application/json" hidden>
+    <!-- PHASE 004 · change -->
+    <section class="phase">
+      <div class="phase-no">004</div>
+      <div class="phase-body">
+        <h2 class="phase-title">Change it <span class="plain">— every map is editable; new systems start from a sentence</span></h2>
+        <p class="phase-lede">Drag components, draw wires, edit anything, undo freely. Or describe a product you haven't built: answer a few sharp questions, and get a complete proposed architecture with every assumption stated. Then tell it what to change, in your own words.</p>
+        <div class="dz-row">
+          <button id="design-open" class="primary"><svg class="icon"><use href="#i-edit"/></svg>Design a new system</button>
+          <button id="design-resume" hidden>Resume your draft</button>
+          <p class="hint" style="margin:0">Works without any API key. You get a vetted starter blueprint, honestly labeled.</p>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="how" class="how">
-    <h2>How it works</h2>
-    <div class="steps">
-      <div><b>1 · Parse.</b> ArchMap reads sources in ten languages (JS/TS, Python, C#, Go, Java, Kotlin, Rust, Ruby, PHP, C/C++), extracts imports, exports, namespaces, and route definitions, and resolves the real dependency graph. Computed truth — nothing hallucinated.</div>
-      <div><b>2 · Structure.</b> Files are clustered into entry / routes / services / data / external columns, the critical path from entry to data is traced, and exports with zero live callers are flagged as dead code.</div>
-      <div><b>3 · Explain (optional).</b> Add your Anthropic API key in Settings and Claude annotates each node in plain English, plus writes maintainer findings. The key stays in your browser's localStorage; calls go straight to api.anthropic.com.</div>
-      <div><b>4 · Share.</b> Export a single self-contained HTML file — the same deliverable as the original architecture-map skill — or an archmap.json anyone can re-import here.</div>
-    </div>
-  </section>
+    <!-- ANNEX A · controls -->
+    <section class="phase annex">
+      <div class="phase-no">A</div>
+      <div class="phase-body">
+        <h2 class="phase-title">Annex A — Controls</h2>
+        <table>
+          <tr><td>Hover · click · double-click</td><td>spotlight a file's wires · pin it and read details · zoom to it</td></tr>
+          <tr><td><kbd>g</kbd> tour</td><td>guided chapters; <kbd>[</kbd> <kbd>]</kbd> to move between them</td></tr>
+          <tr><td><kbd>u</kbd> / <kbd>d</kbd> reach</td><td>everything that feeds the selected file / everything it reaches, with a receipt: files · imports · hops</td></tr>
+          <tr><td><kbd>r</kbd> route</td><td>the shortest real import chain between two files</td></tr>
+          <tr><td><kbd>/</kbd> ask</td><td>"who imports app.js" · "dead code" · "biggest files", or just search a file name</td></tr>
+          <tr><td>click a wire</td><td>the exact <code>file:line</code> import that created it</td></tr>
+          <tr><td><kbd>p</kbd> trace</td><td>one animated pass along the critical path</td></tr>
+          <tr><td>Edit</td><td>drag, add, connect, delete, with undo (<kbd>⌘Z</kbd>), on any map</td></tr>
+          <tr><td><kbd>?</kbd></td><td>the full manual, on the map itself</td></tr>
+        </table>
+      </div>
+    </section>
 
-  <footer>ArchMap · one static page, zero backend · <a href="https://github.com/0-uddeshya-0/archmap" target="_blank" rel="noopener">source</a></footer>
+    <!-- ANNEX B · optional AI -->
+    <section class="phase annex">
+      <div class="phase-no">B</div>
+      <div class="phase-body">
+        <h2 class="phase-title">Annex B — Optional AI, your own key</h2>
+        <div class="byok">
+          <div><b>Enrich</b>Claude reads your most important files and writes plain-language descriptions, a system overview, and maintainer findings.</div>
+          <div><b>Find bugs</b>Reports only problems it can actually see, each cited to file and line. Nothing is uploaded anywhere else.</div>
+          <div><b>Design &amp; edit</b>Generates architectures from your idea and turns instructions into checked changes. Validation gates everything.</div>
+          <div><b>Private by design</b>Your key lives in this browser only; calls go straight to api.anthropic.com. No key? Everything else still works.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="doc-end">
+    <span>End of document</span>
+    <span>ArchMap · one static page · zero backend</span>
+    <span><a href="https://github.com/0-uddeshya-0/archmap" target="_blank" rel="noopener">source</a> · <a href="skill/architecture-map/SKILL.md" target="_blank" rel="noopener">Claude Code skill</a></span>
+  </footer>
 </div>
 
 <!-- ================================ APP ================================ -->
@@ -87,20 +221,30 @@
     <div class="brand" id="back-home" title="Back to start" style="cursor:pointer">Arch<span>Map</span> <span class="back">‹ new map</span></div>
     <div id="chips" class="chips"></div>
     <div class="toolbar">
-      <input id="node-search" class="node-search" type="text" placeholder="Search nodes…" spellcheck="false" aria-label="Search nodes">
-      <button id="open-debug" class="ai-btn" title="Find bugs and overlay them on the map">🐛 Debug</button>
-      <button id="ai-enrich" class="ai-btn" title="Annotate the map with Claude (needs API key in Settings)">✦ AI enrich</button>
-      <button id="export-html" title="Download one self-contained HTML file">Export HTML</button>
-      <button id="export-json" title="Download archmap.json">JSON</button>
-      <button id="zoom-out">−</button>
-      <button id="zoom-fit">Fit</button>
-      <button id="zoom-in">+</button>
-      <button class="ghost theme-toggle" data-theme-toggle title="Toggle light/dark theme" aria-label="Toggle theme">◐</button>
-      <button id="open-settings-2" class="ghost">⚙</button>
+      <input id="node-search" data-map-search class="node-search" type="text" placeholder="Ask or search…  ( / )" spellcheck="false" aria-label="Ask the map or search files">
+      <button id="start-tour" title="Guided tour of this codebase (g)"><svg class="icon"><use href="#i-play"/></svg>Tour</button>
+      <button id="edit-toggle" title="Edit the map: drag, add, connect, delete"><svg class="icon"><use href="#i-edit"/></svg>Edit</button>
+      <button id="open-debug" class="ai-btn" title="Find bugs and overlay them on the map"><svg class="icon"><use href="#i-bug"/></svg>Debug</button>
+      <button id="ai-enrich" class="ai-btn" title="Annotate the map with Claude (needs API key in Settings)"><svg class="icon"><use href="#i-spark"/></svg>Enrich</button>
+      <div class="menu-wrap">
+        <button id="export-btn" data-export-menu title="Export this map (e)"><svg class="icon"><use href="#i-export"/></svg>Export</button>
+        <div id="export-menu" class="menu" hidden>
+          <button id="export-html">Interactive HTML <span class="meta">· one file, full viewer</span></button>
+          <button id="export-json">archmap.json <span class="meta">· portable data</span></button>
+          <button id="export-svg">SVG image</button>
+          <button id="export-png">PNG image</button>
+          <div class="menu-note">Images show the full map in the current theme, without viewer state.</div>
+        </div>
+      </div>
+      <button id="zoom-out" title="Zoom out (−)">−</button>
+      <button id="zoom-fit" title="Fit map (f)">Fit</button>
+      <button id="zoom-in" title="Zoom in (+)">+</button>
+      <button class="ghost theme-toggle icon-only" data-theme-toggle title="Switch light / dark (t)" aria-label="Switch light or dark theme"><svg class="icon sun"><use href="#i-sun"/></svg><svg class="icon moon"><use href="#i-moon"/></svg></button>
+      <button id="open-settings-2" class="ghost icon-only" aria-label="Settings" title="Settings"><svg class="icon"><use href="#i-gear"/></svg></button>
     </div>
   </header>
   <main class="map-layout">
-    <svg id="map" xmlns="http://www.w3.org/2000/svg"></svg>
+    <svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Architecture map"></svg>
     <aside id="sidebar" class="sidebar"></aside>
   </main>
 </div>
@@ -118,7 +262,7 @@
     <h2>Settings</h2>
     <label>GitHub token <span class="hint-inline">(optional — private repos &amp; higher rate limits; needs <code>repo</code> scope)</span></label>
     <input id="set-gh-token" type="password" placeholder="ghp_…" autocomplete="off">
-    <label>Anthropic API key <span class="hint-inline">(optional — enables ✦ AI enrich; stored only in this browser)</span></label>
+    <label>Anthropic API key <span class="hint-inline">(optional — enables Enrich, bug-finding, and the AI Designer; stored only in this browser)</span></label>
     <input id="set-ai-key" type="password" placeholder="sk-ant-…" autocomplete="off">
     <p class="hint">Both values live in localStorage on this machine and are sent only to api.github.com / api.anthropic.com respectively. This site has no backend.</p>
     <div class="row right">
@@ -130,10 +274,10 @@
 
 <div id="debug" class="overlay" hidden>
   <div class="panel settings-panel debug-panel">
-    <h2>🐛 Bugs &amp; repairs</h2>
-    <p class="hint">Overlay real bugs and planned fixes on the map: nodes with open bugs glow <b style="color:var(--critical)">red</b>, nodes with planned repairs glow <b style="color:var(--route)">green</b>. Click any node to read the details.</p>
+    <h2>Bugs &amp; repairs</h2>
+    <p class="hint">Overlay real bugs and planned fixes on the map: nodes with open bugs outline <b style="color:var(--nogo)">red</b>, nodes with planned repairs outline <b style="color:var(--go)">green</b>. Click any node to read the details.</p>
     <div class="row" style="gap:8px;flex-wrap:wrap;">
-      <button id="debug-ai" class="ai-btn" title="Ask Claude to find likely bugs (needs an API key in Settings)">✦ Find bugs with AI</button>
+      <button id="debug-ai" class="ai-btn"><svg class="icon"><use href="#i-spark"/></svg>Find bugs with AI</button>
       <button id="debug-import">Import debug JSON…</button>
       <input id="debug-json-input" type="file" accept=".json,application/json" hidden>
       <button id="debug-clear" class="ghost">Clear overlay</button>
@@ -147,6 +291,71 @@
     <div class="row right">
       <button id="debug-close">Close</button>
       <button id="debug-apply" class="primary">Apply to map</button>
+    </div>
+  </div>
+</div>
+
+<div id="designer" class="overlay" hidden>
+  <div class="panel dz-panel">
+    <div data-stage="idea">
+      <h2>Design a new system</h2>
+      <p class="dz-sub">Describe the product like you'd tell a friend. What it does, who it's for, what happens when someone uses it.</p>
+      <textarea id="dz-idea" spellcheck="true" placeholder="e.g. A marketplace where pet owners find and book local pet sitters. Sitters list their services and availability; owners search, book, pay in the app, and leave reviews. Both sides chat and get booking updates."></textarea>
+      <div class="dz-row">
+        <input id="dz-name" type="text" placeholder="Product name (optional)" style="max-width:240px">
+      </div>
+      <div id="dz-keyless" class="dz-note" hidden>No Anthropic API key set — you'll answer a short form and get a <b>vetted starter blueprint</b> (deterministic, clearly labeled). Add a key in Settings for a design tailored by Claude.</div>
+      <div class="dz-row right">
+        <button id="dz-close">Cancel</button>
+        <button id="dz-continue" class="primary">Continue →</button>
+      </div>
+    </div>
+
+    <div data-stage="grill-wait" hidden>
+      <h2>Design a new system</h2>
+      <div class="dz-wait"><div class="spinner"></div>Reading your idea and preparing the few questions that matter…</div>
+    </div>
+
+    <div data-stage="grill" hidden>
+      <h2>A few sharp questions</h2>
+      <p class="dz-sub">These change the architecture the most. Leave any blank — the design will make a sensible assumption and say so.</p>
+      <div id="dz-questions"></div>
+      <div class="dz-row right">
+        <button data-dz-back>← Back</button>
+        <button id="dz-skip-grill" class="ghost" title="Generate now; assumptions will be listed in the design">Skip questions</button>
+        <button id="dz-generate" class="primary">Generate the design →</button>
+      </div>
+    </div>
+
+    <div data-stage="form" hidden>
+      <h2>Quick blueprint questions</h2>
+      <p class="dz-sub">Six answers compose a starter architecture from standard, vetted patterns — deterministic and honest, no AI involved.</p>
+      <div class="dz-row"><label class="dz-check">Platform
+        <select id="dz-platform">
+          <option value="web">Web only</option>
+          <option value="mobile">Mobile only</option>
+          <option value="both">Web + mobile</option>
+        </select></label>
+      </div>
+      <div class="dz-row">
+        <label class="dz-check"><input id="dz-auth" type="checkbox" checked> User accounts / login</label>
+        <label class="dz-check"><input id="dz-realtime" type="checkbox"> Live updates (chat, presence)</label>
+        <label class="dz-check"><input id="dz-admin" type="checkbox"> Admin panel</label>
+      </div>
+      <div class="dz-row">
+        <label class="dz-check"><input type="checkbox" data-int="payments"> Payments</label>
+        <label class="dz-check"><input type="checkbox" data-int="email"> Email</label>
+        <label class="dz-check"><input type="checkbox" data-int="ai"> AI features</label>
+        <label class="dz-check"><input type="checkbox" data-int="storage"> File uploads</label>
+        <label class="dz-check"><input type="checkbox" data-int="analytics"> Analytics</label>
+      </div>
+      <div class="dz-row">
+        <input id="dz-data" type="text" placeholder="What must be stored? e.g. profiles, bookings, reviews">
+      </div>
+      <div class="dz-row right">
+        <button data-dz-back>← Back</button>
+        <button id="dz-compose" class="primary">Compose the blueprint →</button>
+      </div>
     </div>
   </div>
 </div>

@@ -3,7 +3,7 @@
 // from the browser to api.anthropic.com (no server in between).
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-opus-4-8';
+const MODEL = 'claude-opus-5';
 const KEY_STORAGE = 'archmap.anthropicKey';
 
 export function getKey() { return localStorage.getItem(KEY_STORAGE) || ''; }
@@ -12,18 +12,24 @@ export function setKey(k) {
   else localStorage.removeItem(KEY_STORAGE);
 }
 
-async function callClaude(system, user, maxTokens = 4096) {
+// Opus 5 thinks by default (max_tokens covers thinking + text, so keep it
+// roomy). Safety classifiers can decline a scan with stop_reason "refusal";
+// the server-side fallback re-runs those on Opus 4.8 inside the same call.
+export async function callClaude(system, user, maxTokens = 8000, effort = null) {
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
       'x-api-key': getKey(),
       'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'server-side-fallback-2026-06-01',
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
       model: MODEL,
       max_tokens: maxTokens,
+      fallbacks: [{ model: 'claude-opus-4-8' }],
+      ...(effort ? { output_config: { effort } } : {}),
       system,
       messages: [{ role: 'user', content: user }],
     }),
@@ -35,15 +41,43 @@ async function callClaude(system, user, maxTokens = 4096) {
     throw new Error(`Anthropic API error ${res.status}: ${body.slice(0, 200)}`);
   }
   const data = await res.json();
-  if (data.stop_reason === 'refusal') throw new Error('The model declined this request.');
+  if (data.stop_reason === 'refusal') throw new Error('The model declined this request (safety classifier). Try again or scan a different part of the repo.');
   const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
   return text;
 }
 
-function extractJson(text) {
+export function extractJson(text) {
   const m = text.match(/\{[\s\S]*\}/);
   if (!m) throw new Error('Model did not return JSON.');
   return JSON.parse(m[0]);
+}
+
+// Natural-language question → ONE structured query op (see js/query.js).
+// Translation only: the answer is always computed from the graph afterwards,
+// so a wrong translation produces a visibly wrong query — never an invented fact.
+export async function translateQuery(text, data) {
+  const names = data.nodes.filter(n => !n.aggregate).map(n => n.label).slice(0, 120).join(', ');
+  const clusters = data.clusters.map(c => c.id).join(' | ');
+  const prompt = `Translate the user's question about a codebase map into EXACTLY ONE structured query op, or null if it cannot be expressed.
+
+Ops (pick one):
+{"type":"reach","dir":"up","target":"<file name>"}        // what imports/feeds <target>, transitively
+{"type":"reach","dir":"down","target":"<file name>"}      // what <target> imports/reaches, transitively
+{"type":"route","from":"<file>","to":"<file>"}            // shortest import chain between two files
+{"type":"list","what":"dead"|"cycles"|"routes"|"external"|"big"|"hot"|"critical"}
+{"type":"cluster","cluster":"${clusters}"}
+{"type":"stats"}
+{"type":"find","q":"<file name>"}                          // locate/describe one file
+
+File names on this map: ${names}
+
+Question: ${JSON.stringify(String(text))}
+
+Return JSON only: {"op": <op or null>, "note": "<≤10 words: why null, or empty>"}`;
+  const r = extractJson(await callClaude(
+    'You translate questions into structured graph queries. You never answer the question yourself. Respond ONLY with the requested JSON.',
+    prompt, 2000, 'low'));
+  return r.op || null;
 }
 
 const SYSTEM = `You are an expert software architect annotating a codebase map for two audiences at once: non-engineers who need plain English, and maintainers who need sharp technical judgement. Be concrete and specific to THIS codebase. Never invent facts about code you were not shown. Respond ONLY with the requested JSON, no markdown fences.`;
@@ -79,7 +113,8 @@ Return JSON: {"<node id>": {"role": "...", "plain": "...", "notes": ["..."]}, ..
 
 ${excerpts}`;
     try {
-      const result = extractJson(await callClaude(SYSTEM, prompt, 4096));
+      // routine describe-work: medium effort keeps the user's spend + latency low
+      const result = extractJson(await callClaude(SYSTEM, prompt, 8000, 'medium'));
       for (const n of batch) {
         const r = result[n.id];
         if (!r) continue;
@@ -106,7 +141,7 @@ Node inventory:\n${summary}
 Return JSON:
 {"overview": "3-4 sentences a non-engineer could read to understand what this system is and how a request flows through it",
  "findings": ["4-6 sharp, specific observations a maintainer would care about: dead code, hot paths, surprising couplings, risky seams. Keep any static findings that are still correct."]}`;
-    const r = extractJson(await callClaude(SYSTEM, prompt, 2048));
+    const r = extractJson(await callClaude(SYSTEM, prompt, 6000, 'medium'));
     if (r.overview) data.ai.overview = r.overview;
     if (Array.isArray(r.findings) && r.findings.length) data.findings = r.findings.map(String);
   } catch (err) {
@@ -151,7 +186,8 @@ Return JSON only: {"<node id>": {"bugs":[{"sev":"HIGH","t":"...","ev":["path:lin
 
 ${excerpts}`;
     try {
-      const result = extractJson(await callClaude(SYSTEM, prompt, 4096));
+      // bug hunting is correctness-sensitive: keep default (high) effort
+      const result = extractJson(await callClaude(SYSTEM, prompt, 10000));
       for (const n of batch) {
         const r = result[n.id];
         if (!r) continue;

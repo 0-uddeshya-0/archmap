@@ -11,7 +11,7 @@
 
 const CODE_EXT = /\.(js|jsx|ts|tsx|mjs|cjs|py|cs|go|java|kt|kts|rs|rb|php|c|h|cpp|hpp|cc|hh|cxx|hxx)$/;
 const SKIP_DIRS = /(^|\/)(node_modules|\.git|dist|build|out|\.next|\.nuxt|coverage|vendor|venv|\.venv|__pycache__|\.cache|target|\.turbo|\.svelte-kit|bin|obj|Library|Temp|third_party|external)(\/|$)/;
-const TEST_FILE = /(^|\/)(tests?|__tests__|spec|testFixtures|androidTest)(\/|$)|\.(test|spec)\.[jt]sx?$|(^|\/)test_.*\.py$|_test\.(py|go)$|Tests?\.cs$|Tests?\.java$/;
+const TEST_FILE = /(^|\/)(tests?|__tests__|spec|testFixtures|androidTest)(\/|$)|\.(test|spec)\.[cm]?[jt]sx?$|(^|\/)test_.*\.py$|_test\.(py|go)$|Tests?\.cs$|Tests?\.java$/;
 // vendored third-party trees (Unity packages, plugins) — analyzable but never "dead"
 const VENDORED = /(^|\/)(Packages\/com\.|Plugins\/|ThirdParty\/|Vendor\/)/i;
 const MAX_FILE_SIZE = 300 * 1024;
@@ -46,15 +46,25 @@ function lang(path) {
   return LANG_BY_EXT[path.split('.').pop().toLowerCase()] || 'js';
 }
 
+// Comments are blanked (not removed) so match indexes still map to real line
+// numbers — every edge cites the file:line of the import that created it.
 function stripComments(src, l) {
-  if (l === 'py') return src.replace(/'''[\s\S]*?'''|"""[\s\S]*?"""/g, '').replace(/#[^\n]*/g, '');
-  if (l === 'rb') return src.replace(/#[^\n]*/g, '');
-  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
+  const blank = (m) => m.replace(/[^\n]/g, ' ');
+  if (l === 'py') return src.replace(/'''[\s\S]*?'''|"""[\s\S]*?"""/g, blank).replace(/#[^\n]*/g, blank);
+  if (l === 'rb') return src.replace(/#[^\n]*/g, blank);
+  return src.replace(/\/\*[\s\S]*?\*\//g, blank).replace(/(^|[^:])\/\/[^\n]*/g, (m, p1) => p1 + ' '.repeat(m.length - p1.length));
+}
+
+function lineAt(src, idx) {
+  let n = 1;
+  for (let i = 0; i < idx; i++) if (src.charCodeAt(i) === 10) n++;
+  return n;
 }
 
 // Every parser returns:
-// { pathImports: [spec], symImports: [dotted/sep symbol], provides: [symbol],
-//   externalHints: [pkg], exports: [name], routes: [str], hasMain: bool }
+// { pathImports: [{s: spec, line}], symImports: [{s: dotted/sep symbol, line}],
+//   provides: [symbol], externalHints: [{s: pkg, line}], exports: [name],
+//   routes: [str], hasMain: bool }
 const EMPTY = () => ({ pathImports: [], symImports: [], provides: [], externalHints: [], exports: [], routes: [], hasMain: false });
 
 function parseJS(src) {
@@ -64,7 +74,7 @@ function parseJS(src) {
     /import\s+(?:[\w${},*\s]+?\s+from\s+)?['"]([^'"\n]+)['"]/g,
     /require\(\s*['"]([^'"\n]+)['"]\s*\)/g,
     /import\(\s*['"]([^'"\n]+)['"]\s*\)/g,
-  ]) while ((m = re.exec(src))) p.pathImports.push(m[1]);
+  ]) while ((m = re.exec(src))) p.pathImports.push({ s: m[1], line: lineAt(src, m.index) });
   const exportRe = /export\s+(?:default\s+)?(?:async\s+)?(?:function\*?|class|const|let|var)\s+([\w$]+)/g;
   while ((m = exportRe.exec(src))) p.exports.push(m[1]);
   const exportBraceRe = /export\s*\{([^}]+)\}/g;
@@ -86,9 +96,9 @@ function parsePY(src) {
   p.hasMain = src.includes('__main__');
   let m;
   const fromRe = /^\s*from\s+([\w.]+)\s+import\s+/gm;
-  while ((m = fromRe.exec(src))) p.pathImports.push(m[1]);
+  while ((m = fromRe.exec(src))) p.pathImports.push({ s: m[1], line: lineAt(src, m.index) });
   const impRe = /^\s*import\s+([\w.]+(?:\s*,\s*[\w.]+)*)/gm;
-  while ((m = impRe.exec(src))) for (const mod of m[1].split(',')) p.pathImports.push(mod.trim());
+  while ((m = impRe.exec(src))) for (const mod of m[1].split(',')) p.pathImports.push({ s: mod.trim(), line: lineAt(src, m.index) });
   const defRe = /^(?:def|class)\s+([\w]+)/gm;
   while ((m = defRe.exec(src))) p.exports.push(m[1]);
   const flaskRe = /@\s*(?:app|bp|blueprint|router)\.(?:route|get|post|put|delete|patch)\(\s*['"]([^'"\n]+)['"]/g;
@@ -102,7 +112,7 @@ function parseCS(src) {
   const nsRe = /^\s*namespace\s+([\w.]+)/gm;
   while ((m = nsRe.exec(src))) p.provides.push(m[1]);
   const usingRe = /^\s*(?:global\s+)?using\s+(?:static\s+)?(?!var\b)([A-Z][\w.]*)\s*;/gm;
-  while ((m = usingRe.exec(src))) p.symImports.push(m[1]);
+  while ((m = usingRe.exec(src))) p.symImports.push({ s: m[1], line: lineAt(src, m.index) });
   const typeRe = /(?:public|internal|protected)?\s*(?:static\s+|abstract\s+|sealed\s+|partial\s+)*(?:class|struct|interface|enum|record)\s+([A-Z]\w*)/g;
   while ((m = typeRe.exec(src))) p.exports.push(m[1]);
   const routeAttr = /\[Http(Get|Post|Put|Delete|Patch)(?:\(\s*"([^"]*)"\s*\))?\]|\[Route\(\s*"([^"]*)"\s*\)\]/g;
@@ -117,7 +127,7 @@ function parseJVM(src) {
   const pkgRe = /^\s*package\s+([\w.]+)/m;
   if ((m = pkgRe.exec(src))) p.provides.push(m[1]);
   const impRe = /^\s*import\s+(?:static\s+)?([\w.]+)(?:\.\*)?/gm;
-  while ((m = impRe.exec(src))) p.symImports.push(m[1]);
+  while ((m = impRe.exec(src))) p.symImports.push({ s: m[1], line: lineAt(src, m.index) });
   const typeRe = /(?:public|internal|private)?\s*(?:abstract\s+|final\s+|open\s+|data\s+|sealed\s+)*(?:class|interface|enum|object|record)\s+([A-Z]\w*)/g;
   while ((m = typeRe.exec(src))) p.exports.push(m[1]);
   const springRe = /@(?:Get|Post|Put|Delete|Patch|Request)Mapping\(\s*(?:value\s*=\s*)?"([^"]+)"/g;
@@ -134,11 +144,11 @@ function parseGO(src) {
   const blockRe = /import\s*\(([\s\S]*?)\)/g;
   while ((m = blockRe.exec(src))) {
     let im;
-    const line = /"([^"\n]+)"/g;
-    while ((im = line.exec(m[1]))) p.symImports.push(im[1]);
+    const inner = /"([^"\n]+)"/g;
+    while ((im = inner.exec(m[1]))) p.symImports.push({ s: im[1], line: lineAt(src, m.index + im.index) });
   }
   const singleRe = /^\s*import\s+(?:\w+\s+)?"([^"\n]+)"/gm;
-  while ((m = singleRe.exec(src))) p.symImports.push(m[1]);
+  while ((m = singleRe.exec(src))) p.symImports.push({ s: m[1], line: lineAt(src, m.index) });
   const fnRe = /^func\s+(?:\([^)]*\)\s+)?([A-Z]\w*)/gm;
   while ((m = fnRe.exec(src))) p.exports.push(m[1]);
   const typeRe = /^type\s+([A-Z]\w*)/gm;
@@ -153,12 +163,12 @@ function parseRS(src) {
   const p = EMPTY();
   let m;
   const useRe = /^\s*(?:pub\s+)?use\s+crate::([\w:]+)/gm;
-  while ((m = useRe.exec(src))) p.symImports.push(m[1].split('::').slice(0, 3).join('::'));
+  while ((m = useRe.exec(src))) p.symImports.push({ s: m[1].split('::').slice(0, 3).join('::'), line: lineAt(src, m.index) });
   const modRe = /^\s*(?:pub\s+)?mod\s+(\w+)\s*;/gm;
-  while ((m = modRe.exec(src))) p.pathImports.push(m[1]); // resolved as sibling file
+  while ((m = modRe.exec(src))) p.pathImports.push({ s: m[1], line: lineAt(src, m.index) }); // resolved as sibling file
   const extRe = /^\s*(?:pub\s+)?use\s+([a-z_][\w]*)::/gm;
   while ((m = extRe.exec(src))) {
-    if (!['crate', 'self', 'super', 'std', 'core', 'alloc'].includes(m[1])) p.externalHints.push(m[1]);
+    if (!['crate', 'self', 'super', 'std', 'core', 'alloc'].includes(m[1])) p.externalHints.push({ s: m[1], line: lineAt(src, m.index) });
   }
   const itemRe = /^\s*pub\s+(?:async\s+)?(?:fn|struct|enum|trait|type|const)\s+(\w+)/gm;
   while ((m = itemRe.exec(src))) p.exports.push(m[1]);
@@ -170,9 +180,9 @@ function parseRB(src) {
   const p = EMPTY();
   let m;
   const relRe = /require_relative\s+['"]([^'"\n]+)['"]/g;
-  while ((m = relRe.exec(src))) p.pathImports.push('./' + m[1]);
+  while ((m = relRe.exec(src))) p.pathImports.push({ s: './' + m[1], line: lineAt(src, m.index) });
   const reqRe = /^\s*require\s+['"]([^'"\n]+)['"]/gm;
-  while ((m = reqRe.exec(src))) p.externalHints.push(m[1].split('/')[0]);
+  while ((m = reqRe.exec(src))) p.externalHints.push({ s: m[1].split('/')[0], line: lineAt(src, m.index) });
   const defRe = /^\s*(?:class|module)\s+([A-Z]\w*)/gm;
   while ((m = defRe.exec(src))) p.exports.push(m[1]);
   const routeRe = /^\s*(get|post|put|delete|patch)\s+['"]([^'"\n]+)['"]/gm;
@@ -186,9 +196,9 @@ function parsePHP(src) {
   const nsRe = /^\s*namespace\s+([\w\\]+)/m;
   if ((m = nsRe.exec(src))) p.provides.push(m[1].replace(/\\/g, '.'));
   const useRe = /^\s*use\s+([\w\\]+)/gm;
-  while ((m = useRe.exec(src))) p.symImports.push(m[1].replace(/\\/g, '.'));
+  while ((m = useRe.exec(src))) p.symImports.push({ s: m[1].replace(/\\/g, '.'), line: lineAt(src, m.index) });
   const incRe = /(?:require|include)(?:_once)?\s*\(?\s*(?:__DIR__\s*\.\s*)?['"]\.?\/?([^'"\n]+\.php)['"]/g;
-  while ((m = incRe.exec(src))) p.pathImports.push('./' + m[1]);
+  while ((m = incRe.exec(src))) p.pathImports.push({ s: './' + m[1], line: lineAt(src, m.index) });
   const clsRe = /^\s*(?:abstract\s+|final\s+)?(?:class|interface|trait|enum)\s+(\w+)/gm;
   while ((m = clsRe.exec(src))) p.exports.push(m[1]);
   return p;
@@ -198,9 +208,9 @@ function parseC(src) {
   const p = EMPTY();
   let m;
   const localRe = /#include\s+"([^"\n]+)"/g;
-  while ((m = localRe.exec(src))) p.pathImports.push('./' + m[1]);
+  while ((m = localRe.exec(src))) p.pathImports.push({ s: './' + m[1], line: lineAt(src, m.index) });
   const sysRe = /#include\s+<([^>\n]+)>/g;
-  while ((m = sysRe.exec(src))) p.externalHints.push(m[1].split('/')[0].replace(/\.h.*$/, ''));
+  while ((m = sysRe.exec(src))) p.externalHints.push({ s: m[1].split('/')[0].replace(/\.h.*$/, ''), line: lineAt(src, m.index) });
   const fnRe = /^[A-Za-z_][\w\s*]*?\s\*?([A-Za-z_]\w*)\s*\([^;{]*\)\s*\{/gm;
   while ((m = fnRe.exec(src))) if (m[1] !== 'if' && m[1] !== 'for' && m[1] !== 'while' && m[1] !== 'switch') p.exports.push(m[1]);
   if (/\bint\s+main\s*\(/.test(src)) p.hasMain = true;
@@ -419,13 +429,14 @@ export function analyze(files, meta = {}) {
     }
   }
 
-  // pass 2: build edges
+  // pass 2: build edges (every edge carries the file:line of the import)
   const internalEdges = [];
-  const externalUse = new Map(); // pkg -> { files:Set, kindHint }
-  const useExternal = (pkg, path, l) => {
+  const externalUse = new Map(); // pkg -> { files: Map(path -> line), lang }
+  const useExternal = (pkg, path, l, line) => {
     if (!pkg) return;
-    if (!externalUse.has(pkg)) externalUse.set(pkg, { files: new Set(), lang: l });
-    externalUse.get(pkg).files.add(path);
+    if (!externalUse.has(pkg)) externalUse.set(pkg, { files: new Map(), lang: l });
+    const files = externalUse.get(pkg).files;
+    if (!files.has(path)) files.set(path, line);
   };
   const matchSymbol = (sym, sep) => {
     // longest-prefix match against the provider table
@@ -441,32 +452,35 @@ export function analyze(files, meta = {}) {
     const parsed = parsedMap.get(f.path);
     const l = parsed.lang;
     const seen = new Set();
-    const link = (to) => {
-      if (to && to !== f.path && !seen.has(to)) { internalEdges.push({ from: f.path, to }); seen.add(to); }
+    const link = (to, line, spec) => {
+      if (to && to !== f.path && !seen.has(to)) {
+        internalEdges.push({ from: f.path, to, line, spec });
+        seen.add(to);
+      }
     };
-    for (const spec of parsed.pathImports) {
+    for (const { s: spec, line } of parsed.pathImports) {
       const resolved = resolvePathImport(f.path, spec, fileSet, l);
-      if (resolved) link(resolved);
-      else if (l === 'js' && !spec.startsWith('.') && !spec.startsWith('/')) useExternal(packageName(spec), f.path, l);
-      else if (l === 'py' && !spec.startsWith('.')) useExternal(spec.split('.')[0], f.path, l);
+      if (resolved) link(resolved, line, spec);
+      else if (l === 'js' && !spec.startsWith('.') && !spec.startsWith('/')) useExternal(packageName(spec), f.path, l, line);
+      else if (l === 'py' && !spec.startsWith('.')) useExternal(spec.split('.')[0], f.path, l, line);
     }
-    for (const sym of parsed.symImports) {
+    for (const { s: sym, line } of parsed.symImports) {
       if (l === 'go') {
         let matched = null;
         const imp = goModule && sym.startsWith(goModule) ? sym.slice(goModule.length).replace(/^\//, '') || '.' : sym;
         for (const [dir, paths] of dirProviders) {
           if (imp === dir || sym.endsWith('/' + dir)) { matched = paths; break; }
         }
-        if (matched) matched.slice(0, 3).forEach(link);
-        else useExternal(symbolPackage(sym, l), f.path, l);
+        if (matched) matched.slice(0, 3).forEach(p => link(p, line, sym));
+        else useExternal(symbolPackage(sym, l), f.path, l, line);
         continue;
       }
       const sep = l === 'rs' ? '::' : '.';
       const matched = matchSymbol(sym, sep);
-      if (matched) matched.slice(0, 3).forEach(link);
-      else if (l !== 'rs') useExternal(symbolPackage(sym, l), f.path, l);
+      if (matched) matched.slice(0, 3).forEach(p => link(p, line, sym));
+      else if (l !== 'rs') useExternal(symbolPackage(sym, l), f.path, l, line);
     }
-    for (const hint of parsed.externalHints) useExternal(hint, f.path, l);
+    for (const { s: hint, line } of parsed.externalHints) useExternal(hint, f.path, l, line);
   }
 
   // degree
@@ -476,13 +490,22 @@ export function analyze(files, meta = {}) {
     inDeg.set(e.to, (inDeg.get(e.to) || 0) + 1);
   }
 
+  // circular imports: strongly-connected components of size > 1
+  const cycleGroups = findCycleGroups(codeFiles.map(f => f.path), internalEdges);
+  const cycleEdgeKeys = new Set();
+  for (const group of cycleGroups) {
+    const members = new Set(group);
+    for (const e of internalEdges) {
+      if (members.has(e.from) && members.has(e.to)) cycleEdgeKeys.add(e.from + '→' + e.to);
+    }
+  }
+
   const fileInfo = codeFiles.map(f => {
     const parsed = parsedMap.get(f.path);
     const cluster = classify(f.path, parsed, detectedDeps, parsed.lang);
     const loc = f.content.split('\n').length;
     const degree = (inDeg.get(f.path) || 0) + (outDeg.get(f.path) || 0);
-    const extCount = parsed.externalHints.length + parsed.symImports.length ? 1 : 0;
-    return { path: f.path, parsed, cluster, loc, degree, extCount };
+    return { path: f.path, parsed, cluster, loc, degree };
   });
 
   // dead code
@@ -570,7 +593,7 @@ export function analyze(files, meta = {}) {
     nodes.push({
       id: 'ext:' + pkg, cluster: 'external', label: pkg, sub: kind,
       color: 'external', path: '', role: `External ${kind} imported by ${info.files.size} file${info.files.size > 1 ? 's' : ''}.`,
-      plain: '', notes: [...info.files].slice(0, 4).map(u => 'used by ' + u), tag: ['all'],
+      plain: '', notes: [...info.files.entries()].slice(0, 4).map(([u, ln]) => `used by ${u}${ln ? ':' + ln : ''}`), tag: ['all'],
     });
   }
 
@@ -583,36 +606,59 @@ export function analyze(files, meta = {}) {
     if (edgeKey.has(k)) continue;
     edgeKey.add(k);
     const kind = clusterOf.get(e.from) === 'entry' ? 'mount' : 'normal';
-    edges.push({ from: nodeId(e.from), to: nodeId(e.to), kind, label: 'import', tag: mergeTags(tagsFor(e.from), tagsFor(e.to)) });
+    const edge = { from: nodeId(e.from), to: nodeId(e.to), kind, label: 'import', tag: mergeTags(tagsFor(e.from), tagsFor(e.to)) };
+    if (e.line) edge.ev = `${e.from}:${e.line}`;
+    if (e.spec) edge.spec = e.spec;
+    if (cycleEdgeKeys.has(k)) edge.cycle = true;
+    edges.push(edge);
   }
   for (const [pkg, info] of extSorted) {
     let count = 0;
-    for (const u of info.files) {
+    for (const [u, line] of info.files) {
       if (!selectedSet.has(u) || count >= 3) continue;
       count++;
       const kind = DB_PACKAGES.has(pkg) ? 'db' : 'api';
-      edges.push({ from: nodeId(u), to: 'ext:' + pkg, kind, label: DB_PACKAGES.has(pkg) ? 'DB read/write' : pkg, tag: tagsFor(u) });
+      const edge = { from: nodeId(u), to: 'ext:' + pkg, kind, label: DB_PACKAGES.has(pkg) ? 'DB read/write' : pkg, tag: tagsFor(u) };
+      if (line) edge.ev = `${u}:${line}`;
+      edge.spec = pkg;
+      edges.push(edge);
     }
   }
 
   markCriticalPath(nodes, edges);
-  const findings = buildFindings(fileInfo, extSorted, detectedDeps, inDeg);
+  const findings = buildFindings(fileInfo, extSorted, detectedDeps, inDeg, cycleGroups, internalEdges, clusterOf);
   const clusters = CLUSTER_ORDER
     .filter(c => nodes.some(n => n.cluster === c))
     .map(c => ({ id: c, label: CLUSTER_META[c].label, color: CLUSTER_META[c].color }));
 
   const langCounts = {};
+  let totalLoc = 0;
   for (const f of codeFiles) langCounts[lang(f.path)] = (langCounts[lang(f.path)] || 0) + 1;
+  for (const fi of fileInfo) totalLoc += fi.loc;
+
+  // full inventory of files that did not make it onto the map, plus the edges
+  // touching them — lets the viewer expand aggregates and search everything
+  const inventoryFiles = fileInfo.slice(MAX_NODES).map(fi => ({
+    path: fi.path, cluster: fi.cluster, loc: fi.loc, degree: fi.degree, ...(fi.dead ? { dead: true } : {}),
+  }));
+  const inventoryEdges = [];
+  for (const e of internalEdges) {
+    if (selectedSet.has(e.from) && selectedSet.has(e.to)) continue;
+    inventoryEdges.push([e.from, e.to, e.line || 0]);
+    if (inventoryEdges.length >= 4000) break;
+  }
 
   return {
     version: 1,
     meta: {
       name: meta.name || 'repository',
       source: meta.source || 'unknown',
+      url: meta.url, ref: meta.ref,
       generatedAt: new Date().toISOString(),
       stats: {
         filesScanned: codeFiles.length,
         totalFiles: files.length,
+        totalLoc,
         nodes: nodes.length,
         edges: edges.length,
         languages: langCounts,
@@ -621,9 +667,41 @@ export function analyze(files, meta = {}) {
     },
     clusters, nodes, edges, findings,
     tags: ['all', ...tags],
+    inventory: { files: inventoryFiles, edges: inventoryEdges },
     fixes: {}, bugs: {},
     ai: { enriched: false },
   };
+}
+
+// Tarjan strongly-connected components; groups of size > 1 are import cycles.
+function findCycleGroups(paths, internalEdges) {
+  const adj = new Map(paths.map(p => [p, []]));
+  for (const e of internalEdges) if (adj.has(e.from) && adj.has(e.to)) adj.get(e.from).push(e.to);
+  let counter = 0;
+  const index = new Map(), low = new Map(), onStack = new Set(), stack = [];
+  const groups = [];
+  const strong = (v) => {
+    index.set(v, counter); low.set(v, counter); counter++;
+    stack.push(v); onStack.add(v);
+    for (const w of adj.get(v) || []) {
+      if (!index.has(w)) {
+        strong(w);
+        low.set(v, Math.min(low.get(v), low.get(w)));
+      } else if (onStack.has(w)) {
+        low.set(v, Math.min(low.get(v), index.get(w)));
+      }
+    }
+    if (low.get(v) === index.get(v)) {
+      const group = [];
+      let w;
+      do { w = stack.pop(); onStack.delete(w); group.push(w); } while (w !== v);
+      if (group.length > 1) groups.push(group.sort());
+    }
+  };
+  try {
+    for (const p of paths) if (!index.has(p)) strong(p);
+  } catch { /* pathological recursion depth — skip cycle detection */ }
+  return groups.sort((a, b) => a.length - b.length);
 }
 
 function mergeTags(a, b) { return [...new Set([...a, ...b])]; }
@@ -690,11 +768,23 @@ function pathLen(prev, id) {
   return n;
 }
 
-function buildFindings(fileInfo, extSorted, deps, inDeg) {
+function buildFindings(fileInfo, extSorted, deps, inDeg, cycleGroups, internalEdges, clusterOf) {
   const findings = [];
   const dead = fileInfo.filter(f => f.dead);
   if (dead.length) {
     findings.push(`Dead code: ${dead.length} file${dead.length > 1 ? 's' : ''} with zero live callers — ${dead.slice(0, 5).map(d => d.path).join(', ')}${dead.length > 5 ? ` and ${dead.length - 5} more` : ''}.`);
+  }
+  if (cycleGroups.length) {
+    const shown = cycleGroups.slice(0, 2).map(g =>
+      g.length <= 4 ? g.join(' ⇄ ') : `${g.slice(0, 3).join(' ⇄ ')} … (${g.length} files)`);
+    const more = cycleGroups.length > 2 ? ` and ${cycleGroups.length - 2} more cycle${cycleGroups.length > 3 ? 's' : ''}` : '';
+    findings.push(`Circular imports: ${shown.join('; ')}${more} — these files can only be understood (and safely changed) together.`);
+  }
+  const upward = internalEdges.filter(e =>
+    clusterOf.get(e.from) === 'data' && ['routes', 'entry', 'client'].includes(clusterOf.get(e.to)));
+  if (upward.length) {
+    const ex = upward.slice(0, 2).map(e => `${e.from} → ${e.to}`).join(', ');
+    findings.push(`Layering: the data layer imports upward (${ex}${upward.length > 2 ? `, +${upward.length - 2} more` : ''}) — data code usually should not depend on route/UI code.`);
   }
   const hot = [...inDeg.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).filter(([, c]) => c >= 3);
   if (hot.length) {
@@ -709,6 +799,6 @@ function buildFindings(fileInfo, extSorted, deps, inDeg) {
   const dbs = extSorted.filter(([p]) => DB_PACKAGES.has(p));
   if (dbs.length > 1) findings.push(`Multiple data stores in use: ${dbs.map(([p]) => p).join(', ')} — verify this is intentional.`);
   if (deps.frameworks.size) findings.push(`Stack: ${[...deps.frameworks].join(', ')}.`);
-  if (!findings.length) findings.push('No dead code, oversized files, or unusual couplings surfaced by static analysis.');
+  if (!findings.length) findings.push('No dead code, cycles, oversized files, or unusual couplings surfaced by static analysis.');
   return findings;
 }

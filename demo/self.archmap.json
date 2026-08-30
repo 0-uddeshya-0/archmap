@@ -1,0 +1,941 @@
+{
+ "version": 1,
+ "meta": {
+  "name": "archmap (this site)",
+  "source": "demo",
+  "url": "https://github.com/0-uddeshya-0/archmap",
+  "ref": "main",
+  "generatedAt": "2026-08-30T22:13:07.528Z",
+  "stats": {
+   "filesScanned": 13,
+   "totalFiles": 14,
+   "totalLoc": 4690,
+   "nodes": 20,
+   "edges": 33,
+   "languages": {
+    "js": 13
+   },
+   "frameworks": []
+  }
+ },
+ "clusters": [
+  {
+   "id": "entry",
+   "label": "Entry points",
+   "color": "route"
+  },
+  {
+   "id": "services",
+   "label": "Services / Core",
+   "color": "service"
+  },
+  {
+   "id": "external",
+   "label": "External deps",
+   "color": "external"
+  },
+  {
+   "id": "tests",
+   "label": "Tests",
+   "color": "muted"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "f:js/main.js",
+   "cluster": "entry",
+   "label": "main.js",
+   "sub": "js",
+   "color": "route",
+   "path": "js/main.js",
+   "role": "478-line JavaScript/TypeScript module.",
+   "plain": "",
+   "notes": [
+    "478 lines · JavaScript/TypeScript",
+    "0 incoming / 8 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 478,
+   "exports": [],
+   "routes": [],
+   "critical": true
+  },
+  {
+   "id": "f:js/analyze.js",
+   "cluster": "services",
+   "label": "analyze.js",
+   "sub": "js",
+   "color": "service",
+   "path": "js/analyze.js",
+   "role": "Exports isAnalyzableFile, isManifest, analyze.",
+   "plain": "",
+   "notes": [
+    "805 lines · JavaScript/TypeScript",
+    "6 incoming / 0 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 805,
+   "exports": [
+    "isAnalyzableFile",
+    "isManifest",
+    "analyze"
+   ],
+   "routes": [],
+   "critical": true
+  },
+  {
+   "id": "f:js/designer.js",
+   "cluster": "services",
+   "label": "designer.js",
+   "sub": "js",
+   "color": "service",
+   "path": "js/designer.js",
+   "role": "Exports composeFromAnswers, grillQuestions, generateDesign, iterateOps, initDesigner.",
+   "plain": "",
+   "notes": [
+    "360 lines · JavaScript/TypeScript",
+    "2 incoming / 2 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 360,
+   "exports": [
+    "composeFromAnswers",
+    "grillQuestions",
+    "generateDesign",
+    "iterateOps",
+    "initDesigner"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:js/validate.js",
+   "cluster": "services",
+   "label": "validate.js",
+   "sub": "js",
+   "color": "service",
+   "path": "js/validate.js",
+   "role": "Exports CLUSTER_COLORS, NODE_COLORS, EDGE_KINDS, validateMap, selfCheckLine and 2 more.",
+   "plain": "",
+   "notes": [
+    "192 lines · JavaScript/TypeScript",
+    "3 incoming / 0 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 192,
+   "exports": [
+    "CLUSTER_COLORS",
+    "NODE_COLORS",
+    "EDGE_KINDS",
+    "validateMap",
+    "selfCheckLine",
+    "slugId",
+    "applyPatch"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:tools/validate.test.mjs",
+   "cluster": "tests",
+   "label": "validate.test.mjs",
+   "sub": "tools",
+   "color": "muted",
+   "path": "tools/validate.test.mjs",
+   "role": "Exports r.",
+   "plain": "",
+   "notes": [
+    "118 lines · JavaScript/TypeScript",
+    "0 incoming / 3 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "dead": false,
+   "loc": 118,
+   "exports": [
+    "r"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:js/ai.js",
+   "cluster": "services",
+   "label": "ai.js",
+   "sub": "js",
+   "color": "service",
+   "path": "js/ai.js",
+   "role": "Exports getKey, setKey, callClaude, extractJson, translateQuery and 2 more.",
+   "plain": "",
+   "notes": [
+    "219 lines · JavaScript/TypeScript",
+    "2 incoming / 0 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 219,
+   "exports": [
+    "getKey",
+    "setKey",
+    "callClaude",
+    "extractJson",
+    "translateQuery",
+    "enrichMap",
+    "findBugs"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:js/export.js",
+   "cluster": "services",
+   "label": "export.js",
+   "sub": "js",
+   "color": "service",
+   "path": "js/export.js",
+   "role": "Exports downloadJson, downloadHtml, downloadSvg, downloadPng.",
+   "plain": "",
+   "notes": [
+    "183 lines · JavaScript/TypeScript",
+    "1 incoming / 1 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 183,
+   "exports": [
+    "downloadJson",
+    "downloadHtml",
+    "downloadSvg",
+    "downloadPng"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:js/ingest.js",
+   "cluster": "services",
+   "label": "ingest.js",
+   "sub": "js",
+   "color": "service",
+   "path": "js/ingest.js",
+   "role": "Exports parseGithubUrl, ingestGithub, ingestDirectoryPicker, ingestDroppedItems, ingestFileInput and 1 more.",
+   "plain": "",
+   "notes": [
+    "213 lines · JavaScript/TypeScript",
+    "1 incoming / 1 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 213,
+   "exports": [
+    "parseGithubUrl",
+    "ingestGithub",
+    "ingestDirectoryPicker",
+    "ingestDroppedItems",
+    "ingestFileInput",
+    "ingestWebsite"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:js/query.js",
+   "cluster": "services",
+   "label": "query.js",
+   "sub": "js",
+   "color": "service",
+   "path": "js/query.js",
+   "role": "Exports QUERY_OPS, parseQuery, resolveNode, runQuery.",
+   "plain": "",
+   "notes": [
+    "218 lines · JavaScript/TypeScript",
+    "2 incoming / 0 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 218,
+   "exports": [
+    "QUERY_OPS",
+    "parseQuery",
+    "resolveNode",
+    "runQuery"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:js/render.js",
+   "cluster": "services",
+   "label": "render.js",
+   "sub": "js",
+   "color": "service",
+   "path": "js/render.js",
+   "role": "Exports MapRenderer.",
+   "plain": "",
+   "notes": [
+    "1673 lines · JavaScript/TypeScript",
+    "2 incoming / 0 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "js"
+   ],
+   "dead": false,
+   "loc": 1673,
+   "exports": [
+    "MapRenderer"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:tools/query.test.mjs",
+   "cluster": "tests",
+   "label": "query.test.mjs",
+   "sub": "tools",
+   "color": "muted",
+   "path": "tools/query.test.mjs",
+   "role": "Exports route, save, orphanHelperFn, a, b.",
+   "plain": "",
+   "notes": [
+    "81 lines · JavaScript/TypeScript",
+    "0 incoming / 2 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "dead": false,
+   "loc": 81,
+   "exports": [
+    "route",
+    "save",
+    "orphanHelperFn",
+    "a",
+    "b"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:tools/analyze.test.mjs",
+   "cluster": "tests",
+   "label": "analyze.test.mjs",
+   "sub": "tools",
+   "color": "muted",
+   "path": "tools/analyze.test.mjs",
+   "role": "Exports main, helper, x, a, b and 7 more.",
+   "plain": "",
+   "notes": [
+    "110 lines · JavaScript/TypeScript",
+    "0 incoming / 1 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "dead": false,
+   "loc": 110,
+   "exports": [
+    "main",
+    "helper",
+    "x",
+    "a",
+    "b",
+    "used",
+    "orphanHelperFn",
+    "pool",
+    "s$",
+    "core",
+    "route",
+    "save"
+   ],
+   "routes": []
+  },
+  {
+   "id": "f:tools/gen-demo.mjs",
+   "cluster": "services",
+   "label": "gen-demo.mjs",
+   "sub": "tools",
+   "color": "service",
+   "path": "tools/gen-demo.mjs",
+   "role": "40-line JavaScript/TypeScript module.",
+   "plain": "",
+   "notes": [
+    "40 lines · JavaScript/TypeScript",
+    "0 incoming / 1 outgoing internal references"
+   ],
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "dead": false,
+   "loc": 40,
+   "exports": [],
+   "routes": []
+  },
+  {
+   "id": "ext:node:test",
+   "cluster": "external",
+   "label": "node:test",
+   "sub": "package",
+   "color": "external",
+   "path": "",
+   "role": "External package imported by 3 files.",
+   "plain": "",
+   "notes": [
+    "used by tools/analyze.test.mjs:2",
+    "used by tools/query.test.mjs:2",
+    "used by tools/validate.test.mjs:2"
+   ],
+   "tag": [
+    "all"
+   ]
+  },
+  {
+   "id": "ext:node:assert",
+   "cluster": "external",
+   "label": "node:assert",
+   "sub": "package",
+   "color": "external",
+   "path": "",
+   "role": "External package imported by 3 files.",
+   "plain": "",
+   "notes": [
+    "used by tools/analyze.test.mjs:3",
+    "used by tools/query.test.mjs:3",
+    "used by tools/validate.test.mjs:3"
+   ],
+   "tag": [
+    "all"
+   ]
+  },
+  {
+   "id": "ext:pg",
+   "cluster": "external",
+   "label": "pg",
+   "sub": "database",
+   "color": "external",
+   "path": "",
+   "role": "External database imported by 3 files.",
+   "plain": "",
+   "notes": [
+    "used by tools/analyze.test.mjs:70",
+    "used by tools/query.test.mjs:11",
+    "used by tools/validate.test.mjs:43"
+   ],
+   "tag": [
+    "all"
+   ]
+  },
+  {
+   "id": "ext:express",
+   "cluster": "external",
+   "label": "express",
+   "sub": "server framework",
+   "color": "external",
+   "path": "",
+   "role": "External server framework imported by 2 files.",
+   "plain": "",
+   "notes": [
+    "used by tools/analyze.test.mjs:40",
+    "used by tools/query.test.mjs:10"
+   ],
+   "tag": [
+    "all"
+   ]
+  },
+  {
+   "id": "ext:node:fs",
+   "cluster": "external",
+   "label": "node:fs",
+   "sub": "package",
+   "color": "external",
+   "path": "",
+   "role": "External package imported by 1 file.",
+   "plain": "",
+   "notes": [
+    "used by tools/gen-demo.mjs:6"
+   ],
+   "tag": [
+    "all"
+   ]
+  },
+  {
+   "id": "ext:node:path",
+   "cluster": "external",
+   "label": "node:path",
+   "sub": "package",
+   "color": "external",
+   "path": "",
+   "role": "External package imported by 1 file.",
+   "plain": "",
+   "notes": [
+    "used by tools/gen-demo.mjs:7"
+   ],
+   "tag": [
+    "all"
+   ]
+  },
+  {
+   "id": "ext:node:url",
+   "cluster": "external",
+   "label": "node:url",
+   "sub": "package",
+   "color": "external",
+   "path": "",
+   "role": "External package imported by 1 file.",
+   "plain": "",
+   "notes": [
+    "used by tools/gen-demo.mjs:8"
+   ],
+   "tag": [
+    "all"
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "f:js/designer.js",
+   "to": "f:js/ai.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/designer.js:15",
+   "spec": "./ai.js"
+  },
+  {
+   "from": "f:js/designer.js",
+   "to": "f:js/validate.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/designer.js:16",
+   "spec": "./validate.js"
+  },
+  {
+   "from": "f:js/export.js",
+   "to": "f:js/render.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/export.js:5",
+   "spec": "./render.js"
+  },
+  {
+   "from": "f:js/ingest.js",
+   "to": "f:js/analyze.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/ingest.js:4",
+   "spec": "./analyze.js"
+  },
+  {
+   "from": "f:js/main.js",
+   "to": "f:js/analyze.js",
+   "kind": "critical",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/main.js:1",
+   "spec": "./analyze.js"
+  },
+  {
+   "from": "f:js/main.js",
+   "to": "f:js/ingest.js",
+   "kind": "mount",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/main.js:2",
+   "spec": "./ingest.js"
+  },
+  {
+   "from": "f:js/main.js",
+   "to": "f:js/render.js",
+   "kind": "mount",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/main.js:3",
+   "spec": "./render.js"
+  },
+  {
+   "from": "f:js/main.js",
+   "to": "f:js/ai.js",
+   "kind": "mount",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/main.js:4",
+   "spec": "./ai.js"
+  },
+  {
+   "from": "f:js/main.js",
+   "to": "f:js/export.js",
+   "kind": "mount",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/main.js:5",
+   "spec": "./export.js"
+  },
+  {
+   "from": "f:js/main.js",
+   "to": "f:js/query.js",
+   "kind": "mount",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/main.js:6",
+   "spec": "./query.js"
+  },
+  {
+   "from": "f:js/main.js",
+   "to": "f:js/validate.js",
+   "kind": "mount",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/main.js:7",
+   "spec": "./validate.js"
+  },
+  {
+   "from": "f:js/main.js",
+   "to": "f:js/designer.js",
+   "kind": "mount",
+   "label": "import",
+   "tag": [
+    "all",
+    "js"
+   ],
+   "ev": "js/main.js:8",
+   "spec": "./designer.js"
+  },
+  {
+   "from": "f:tools/analyze.test.mjs",
+   "to": "f:js/analyze.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "tools",
+    "js"
+   ],
+   "ev": "tools/analyze.test.mjs:4",
+   "spec": "../js/analyze.js"
+  },
+  {
+   "from": "f:tools/gen-demo.mjs",
+   "to": "f:js/analyze.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "tools",
+    "js"
+   ],
+   "ev": "tools/gen-demo.mjs:9",
+   "spec": "../js/analyze.js"
+  },
+  {
+   "from": "f:tools/query.test.mjs",
+   "to": "f:js/query.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "tools",
+    "js"
+   ],
+   "ev": "tools/query.test.mjs:4",
+   "spec": "../js/query.js"
+  },
+  {
+   "from": "f:tools/query.test.mjs",
+   "to": "f:js/analyze.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "tools",
+    "js"
+   ],
+   "ev": "tools/query.test.mjs:5",
+   "spec": "../js/analyze.js"
+  },
+  {
+   "from": "f:tools/validate.test.mjs",
+   "to": "f:js/validate.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "tools",
+    "js"
+   ],
+   "ev": "tools/validate.test.mjs:4",
+   "spec": "../js/validate.js"
+  },
+  {
+   "from": "f:tools/validate.test.mjs",
+   "to": "f:js/analyze.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "tools",
+    "js"
+   ],
+   "ev": "tools/validate.test.mjs:5",
+   "spec": "../js/analyze.js"
+  },
+  {
+   "from": "f:tools/validate.test.mjs",
+   "to": "f:js/designer.js",
+   "kind": "normal",
+   "label": "import",
+   "tag": [
+    "all",
+    "tools",
+    "js"
+   ],
+   "ev": "tools/validate.test.mjs:92",
+   "spec": "../js/designer.js"
+  },
+  {
+   "from": "f:tools/analyze.test.mjs",
+   "to": "ext:node:test",
+   "kind": "api",
+   "label": "node:test",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/analyze.test.mjs:2",
+   "spec": "node:test"
+  },
+  {
+   "from": "f:tools/query.test.mjs",
+   "to": "ext:node:test",
+   "kind": "api",
+   "label": "node:test",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/query.test.mjs:2",
+   "spec": "node:test"
+  },
+  {
+   "from": "f:tools/validate.test.mjs",
+   "to": "ext:node:test",
+   "kind": "api",
+   "label": "node:test",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/validate.test.mjs:2",
+   "spec": "node:test"
+  },
+  {
+   "from": "f:tools/analyze.test.mjs",
+   "to": "ext:node:assert",
+   "kind": "api",
+   "label": "node:assert",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/analyze.test.mjs:3",
+   "spec": "node:assert"
+  },
+  {
+   "from": "f:tools/query.test.mjs",
+   "to": "ext:node:assert",
+   "kind": "api",
+   "label": "node:assert",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/query.test.mjs:3",
+   "spec": "node:assert"
+  },
+  {
+   "from": "f:tools/validate.test.mjs",
+   "to": "ext:node:assert",
+   "kind": "api",
+   "label": "node:assert",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/validate.test.mjs:3",
+   "spec": "node:assert"
+  },
+  {
+   "from": "f:tools/analyze.test.mjs",
+   "to": "ext:pg",
+   "kind": "db",
+   "label": "DB read/write",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/analyze.test.mjs:70",
+   "spec": "pg"
+  },
+  {
+   "from": "f:tools/query.test.mjs",
+   "to": "ext:pg",
+   "kind": "db",
+   "label": "DB read/write",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/query.test.mjs:11",
+   "spec": "pg"
+  },
+  {
+   "from": "f:tools/validate.test.mjs",
+   "to": "ext:pg",
+   "kind": "db",
+   "label": "DB read/write",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/validate.test.mjs:43",
+   "spec": "pg"
+  },
+  {
+   "from": "f:tools/analyze.test.mjs",
+   "to": "ext:express",
+   "kind": "api",
+   "label": "express",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/analyze.test.mjs:40",
+   "spec": "express"
+  },
+  {
+   "from": "f:tools/query.test.mjs",
+   "to": "ext:express",
+   "kind": "api",
+   "label": "express",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/query.test.mjs:10",
+   "spec": "express"
+  },
+  {
+   "from": "f:tools/gen-demo.mjs",
+   "to": "ext:node:fs",
+   "kind": "api",
+   "label": "node:fs",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/gen-demo.mjs:6",
+   "spec": "node:fs"
+  },
+  {
+   "from": "f:tools/gen-demo.mjs",
+   "to": "ext:node:path",
+   "kind": "api",
+   "label": "node:path",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/gen-demo.mjs:7",
+   "spec": "node:path"
+  },
+  {
+   "from": "f:tools/gen-demo.mjs",
+   "to": "ext:node:url",
+   "kind": "api",
+   "label": "node:url",
+   "tag": [
+    "all",
+    "tools"
+   ],
+   "ev": "tools/gen-demo.mjs:8",
+   "spec": "node:url"
+  }
+ ],
+ "findings": [
+  "Hot paths: js/analyze.js (6 importers), js/validate.js (3 importers) — changes here ripple widely.",
+  "Large files: js/render.js (1673 lines), js/analyze.js (805 lines) — candidates for splitting."
+ ],
+ "tags": [
+  "all",
+  "js",
+  "tools"
+ ],
+ "inventory": {
+  "files": [],
+  "edges": []
+ },
+ "fixes": {},
+ "bugs": {},
+ "ai": {
+  "enriched": false
+ }
+}

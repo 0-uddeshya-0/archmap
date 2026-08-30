@@ -1,2 +1,9 @@
 .claude/
 .DS_Store
+# impeccable: vendored tool copies are reinstallable (npx impeccable install);
+# review/ holds transient capture evidence
+.github/agents/
+.github/hooks/
+.github/skills/
+.impeccable/review/
+.impeccable/questions/

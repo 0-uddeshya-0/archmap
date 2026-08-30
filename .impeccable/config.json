@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "css/style.css"
+        ],
+        "createdAt": "2026-08-30T21:17:59.997Z",
+        "reason": "FP: .edge transitions stroke-width, an SVG paint property, not CSS layout width; finish reviewer corroborated 2026-08-30"
+      }
+    ]
+  }
+}

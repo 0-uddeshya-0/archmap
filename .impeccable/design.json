@@ -1,0 +1,685 @@
+{
+ "schemaVersion": 2,
+ "generatedAt": "2026-08-30T21:19:27.915570Z",
+ "title": "Design System: ArchMap",
+ "extensions": {
+  "colorMeta": {
+   "paper": {
+    "role": "neutral",
+    "displayName": "Bond Paper",
+    "canonical": "#ffffff",
+    "oklch": "oklch(100.0% 0 0)",
+    "dark": "#121417",
+    "tonalRamp": [
+     "oklch(15.0% 0 0)",
+     "oklch(26.4% 0 0)",
+     "oklch(37.9% 0 0)",
+     "oklch(49.3% 0 0)",
+     "oklch(60.7% 0 0)",
+     "oklch(72.1% 0 0)",
+     "oklch(83.6% 0 0)",
+     "oklch(95.0% 0 0)"
+    ]
+   },
+   "paper-2": {
+    "role": "neutral",
+    "displayName": "Second Sheet",
+    "canonical": "#f4f4f1",
+    "oklch": "oklch(96.6% 0 0)",
+    "dark": "#1a1d21",
+    "tonalRamp": [
+     "oklch(15.0% 0 0)",
+     "oklch(26.4% 0 0)",
+     "oklch(37.9% 0 0)",
+     "oklch(49.3% 0 0)",
+     "oklch(60.7% 0 0)",
+     "oklch(72.1% 0 0)",
+     "oklch(83.6% 0 0)",
+     "oklch(95.0% 0 0)"
+    ]
+   },
+   "paper-dot": {
+    "role": "neutral",
+    "displayName": "Plot Grid Dot",
+    "canonical": "#d9dbd6",
+    "oklch": "oklch(88.8% 0.007 124.5)",
+    "dark": "#262a2f",
+    "tonalRamp": [
+     "oklch(15.0% 0 0)",
+     "oklch(26.4% 0 0)",
+     "oklch(37.9% 0.004 124.5)",
+     "oklch(49.3% 0.005 124.5)",
+     "oklch(60.7% 0.005 124.5)",
+     "oklch(72.1% 0.006 124.5)",
+     "oklch(83.6% 0.007 124.5)",
+     "oklch(95.0% 0.007 124.5)"
+    ]
+   },
+   "ink": {
+    "role": "neutral",
+    "displayName": "Document Ink",
+    "canonical": "#17191c",
+    "oklch": "oklch(21.3% 0.007 258.4)",
+    "dark": "#e8eaed",
+    "tonalRamp": [
+     "oklch(15.0% 0.006 258.4)",
+     "oklch(26.4% 0.006 258.4)",
+     "oklch(37.9% 0.006 258.4)",
+     "oklch(49.3% 0.005 258.4)",
+     "oklch(60.7% 0.005 258.4)",
+     "oklch(72.1% 0 0)",
+     "oklch(83.6% 0 0)",
+     "oklch(95.0% 0 0)"
+    ]
+   },
+   "ink-soft": {
+    "role": "neutral",
+    "displayName": "Soft Ink",
+    "canonical": "#3b3e44",
+    "oklch": "oklch(36.3% 0.011 264.4)",
+    "dark": "#c3c7cd",
+    "tonalRamp": [
+     "oklch(15.0% 0.009 264.4)",
+     "oklch(26.4% 0.010 264.4)",
+     "oklch(37.9% 0.011 264.4)",
+     "oklch(49.3% 0.010 264.4)",
+     "oklch(60.7% 0.009 264.4)",
+     "oklch(72.1% 0.008 264.4)",
+     "oklch(83.6% 0.007 264.4)",
+     "oklch(95.0% 0.006 264.4)"
+    ]
+   },
+   "muted": {
+    "role": "neutral",
+    "displayName": "Pencil Note",
+    "canonical": "#656b74",
+    "oklch": "oklch(52.6% 0.016 258.4)",
+    "dark": "#969ca6",
+    "tonalRamp": [
+     "oklch(15.0% 0.011 258.4)",
+     "oklch(26.4% 0.013 258.4)",
+     "oklch(37.9% 0.014 258.4)",
+     "oklch(49.3% 0.016 258.4)",
+     "oklch(60.7% 0.015 258.4)",
+     "oklch(72.1% 0.013 258.4)",
+     "oklch(83.6% 0.012 258.4)",
+     "oklch(95.0% 0.011 258.4)"
+    ]
+   },
+   "line": {
+    "role": "neutral",
+    "displayName": "Hairline Rule",
+    "canonical": "#d8dad6",
+    "oklch": "oklch(88.6% 0.006 128.5)",
+    "dark": "#2b2f34",
+    "tonalRamp": [
+     "oklch(15.0% 0 0)",
+     "oklch(26.4% 0 0)",
+     "oklch(37.9% 0 0)",
+     "oklch(49.3% 0 0)",
+     "oklch(60.7% 0.005 128.5)",
+     "oklch(72.1% 0.005 128.5)",
+     "oklch(83.6% 0.006 128.5)",
+     "oklch(95.0% 0.006 128.5)"
+    ]
+   },
+   "line-strong": {
+    "role": "neutral",
+    "displayName": "Heavy Rule",
+    "canonical": "#a9ada6",
+    "oklch": "oklch(74.2% 0.011 131.4)",
+    "dark": "#43484f",
+    "tonalRamp": [
+     "oklch(15.0% 0.006 131.4)",
+     "oklch(26.4% 0.007 131.4)",
+     "oklch(37.9% 0.008 131.4)",
+     "oklch(49.3% 0.009 131.4)",
+     "oklch(60.7% 0.010 131.4)",
+     "oklch(72.1% 0.011 131.4)",
+     "oklch(83.6% 0.010 131.4)",
+     "oklch(95.0% 0.009 131.4)"
+    ]
+   },
+   "signal": {
+    "role": "primary",
+    "displayName": "International Orange",
+    "canonical": "#ff4400",
+    "oklch": "oklch(65.9% 0.230 35.2)",
+    "dark": "#ff5a1f",
+    "tonalRamp": [
+     "oklch(15.0% 0.136 35.2)",
+     "oklch(26.4% 0.157 35.2)",
+     "oklch(37.9% 0.178 35.2)",
+     "oklch(49.3% 0.199 35.2)",
+     "oklch(60.7% 0.220 35.2)",
+     "oklch(72.1% 0.219 35.2)",
+     "oklch(83.6% 0.198 35.2)",
+     "oklch(95.0% 0.177 35.2)"
+    ]
+   },
+   "signal-ink": {
+    "role": "primary",
+    "displayName": "Ink on Orange",
+    "canonical": "#17191c",
+    "oklch": "oklch(21.3% 0.007 258.4)",
+    "dark": "#17191c",
+    "tonalRamp": [
+     "oklch(15.0% 0.006 258.4)",
+     "oklch(26.4% 0.006 258.4)",
+     "oklch(37.9% 0.006 258.4)",
+     "oklch(49.3% 0.005 258.4)",
+     "oklch(60.7% 0.005 258.4)",
+     "oklch(72.1% 0 0)",
+     "oklch(83.6% 0 0)",
+     "oklch(95.0% 0 0)"
+    ]
+   },
+   "signal-text": {
+    "role": "primary",
+    "displayName": "Orange as Text",
+    "canonical": "#c53500",
+    "oklch": "oklch(54.5% 0.187 35.9)",
+    "dark": "#ff8a5c",
+    "tonalRamp": [
+     "oklch(15.0% 0.128 35.9)",
+     "oklch(26.4% 0.145 35.9)",
+     "oklch(37.9% 0.162 35.9)",
+     "oklch(49.3% 0.180 35.9)",
+     "oklch(60.7% 0.178 35.9)",
+     "oklch(72.1% 0.161 35.9)",
+     "oklch(83.6% 0.144 35.9)",
+     "oklch(95.0% 0.127 35.9)"
+    ]
+   },
+   "go": {
+    "role": "secondary",
+    "displayName": "GO Green",
+    "canonical": "#1e7d3f",
+    "oklch": "oklch(52.1% 0.129 150.3)",
+    "dark": "#58c07d",
+    "tonalRamp": [
+     "oklch(15.0% 0.090 150.3)",
+     "oklch(26.4% 0.102 150.3)",
+     "oklch(37.9% 0.114 150.3)",
+     "oklch(49.3% 0.126 150.3)",
+     "oklch(60.7% 0.120 150.3)",
+     "oklch(72.1% 0.108 150.3)",
+     "oklch(83.6% 0.096 150.3)",
+     "oklch(95.0% 0.084 150.3)"
+    ]
+   },
+   "nogo": {
+    "role": "secondary",
+    "displayName": "NO-GO Red",
+    "canonical": "#d61f45",
+    "oklch": "oklch(56.6% 0.212 17.6)",
+    "dark": "#ff4d6e",
+    "tonalRamp": [
+     "oklch(15.0% 0.141 17.6)",
+     "oklch(26.4% 0.161 17.6)",
+     "oklch(37.9% 0.180 17.6)",
+     "oklch(49.3% 0.199 17.6)",
+     "oklch(60.7% 0.205 17.6)",
+     "oklch(72.1% 0.185 17.6)",
+     "oklch(83.6% 0.166 17.6)",
+     "oklch(95.0% 0.147 17.6)"
+    ]
+   },
+   "client": {
+    "role": "tertiary",
+    "displayName": "Client Blue",
+    "canonical": "#1667c9",
+    "oklch": "oklch(52.5% 0.169 256.6)",
+    "dark": "#4ea1ff",
+    "tonalRamp": [
+     "oklch(15.0% 0.119 256.6)",
+     "oklch(26.4% 0.134 256.6)",
+     "oklch(37.9% 0.150 256.6)",
+     "oklch(49.3% 0.165 256.6)",
+     "oklch(60.7% 0.158 256.6)",
+     "oklch(72.1% 0.143 256.6)",
+     "oklch(83.6% 0.127 256.6)",
+     "oklch(95.0% 0.112 256.6)"
+    ]
+   },
+   "route": {
+    "role": "tertiary",
+    "displayName": "Route Green",
+    "canonical": "#1e7d3f",
+    "oklch": "oklch(52.1% 0.129 150.3)",
+    "dark": "#7bd389",
+    "tonalRamp": [
+     "oklch(15.0% 0.090 150.3)",
+     "oklch(26.4% 0.102 150.3)",
+     "oklch(37.9% 0.114 150.3)",
+     "oklch(49.3% 0.126 150.3)",
+     "oklch(60.7% 0.120 150.3)",
+     "oklch(72.1% 0.108 150.3)",
+     "oklch(83.6% 0.096 150.3)",
+     "oklch(95.0% 0.084 150.3)"
+    ]
+   },
+   "service": {
+    "role": "tertiary",
+    "displayName": "Service Violet",
+    "canonical": "#7c3aed",
+    "oklch": "oklch(54.1% 0.247 293.0)",
+    "dark": "#c792ea",
+    "tonalRamp": [
+     "oklch(15.0% 0.169 293.0)",
+     "oklch(26.4% 0.192 293.0)",
+     "oklch(37.9% 0.214 293.0)",
+     "oklch(49.3% 0.237 293.0)",
+     "oklch(60.7% 0.234 293.0)",
+     "oklch(72.1% 0.211 293.0)",
+     "oklch(83.6% 0.189 293.0)",
+     "oklch(95.0% 0.166 293.0)"
+    ]
+   },
+   "db": {
+    "role": "tertiary",
+    "displayName": "Data Amber",
+    "canonical": "#b45309",
+    "oklch": "oklch(55.5% 0.146 49.0)",
+    "dark": "#ffb86b",
+    "tonalRamp": [
+     "oklch(15.0% 0.098 49.0)",
+     "oklch(26.4% 0.112 49.0)",
+     "oklch(37.9% 0.125 49.0)",
+     "oklch(49.3% 0.138 49.0)",
+     "oklch(60.7% 0.139 49.0)",
+     "oklch(72.1% 0.126 49.0)",
+     "oklch(83.6% 0.113 49.0)",
+     "oklch(95.0% 0.100 49.0)"
+    ]
+   },
+   "external": {
+    "role": "tertiary",
+    "displayName": "External Rose",
+    "canonical": "#be2f5b",
+    "oklch": "oklch(53.9% 0.180 7.6)",
+    "dark": "#ff6b9d",
+    "tonalRamp": [
+     "oklch(15.0% 0.124 7.6)",
+     "oklch(26.4% 0.141 7.6)",
+     "oklch(37.9% 0.157 7.6)",
+     "oklch(49.3% 0.174 7.6)",
+     "oklch(60.7% 0.170 7.6)",
+     "oklch(72.1% 0.154 7.6)",
+     "oklch(83.6% 0.138 7.6)",
+     "oklch(95.0% 0.121 7.6)"
+    ]
+   },
+   "critical": {
+    "role": "tertiary",
+    "displayName": "Critical Red",
+    "canonical": "#d61f45",
+    "oklch": "oklch(56.6% 0.212 17.6)",
+    "dark": "#ff3860",
+    "tonalRamp": [
+     "oklch(15.0% 0.141 17.6)",
+     "oklch(26.4% 0.161 17.6)",
+     "oklch(37.9% 0.180 17.6)",
+     "oklch(49.3% 0.199 17.6)",
+     "oklch(60.7% 0.205 17.6)",
+     "oklch(72.1% 0.185 17.6)",
+     "oklch(83.6% 0.166 17.6)",
+     "oklch(95.0% 0.147 17.6)"
+    ]
+   },
+   "neutral": {
+    "role": "tertiary",
+    "displayName": "Overflow Grey",
+    "canonical": "#6b7280",
+    "oklch": "oklch(55.1% 0.023 264.4)",
+    "dark": "#8a8a8a",
+    "tonalRamp": [
+     "oklch(15.0% 0.016 264.4)",
+     "oklch(26.4% 0.018 264.4)",
+     "oklch(37.9% 0.020 264.4)",
+     "oklch(49.3% 0.022 264.4)",
+     "oklch(60.7% 0.022 264.4)",
+     "oklch(72.1% 0.020 264.4)",
+     "oklch(83.6% 0.018 264.4)",
+     "oklch(95.0% 0.016 264.4)"
+    ]
+   },
+   "node-fill": {
+    "role": "tertiary",
+    "displayName": "Node Plate",
+    "canonical": "#ffffff",
+    "oklch": "oklch(100.0% 0 0)",
+    "dark": "#191c20",
+    "tonalRamp": [
+     "oklch(15.0% 0 0)",
+     "oklch(26.4% 0 0)",
+     "oklch(37.9% 0 0)",
+     "oklch(49.3% 0 0)",
+     "oklch(60.7% 0 0)",
+     "oklch(72.1% 0 0)",
+     "oklch(83.6% 0 0)",
+     "oklch(95.0% 0 0)"
+    ]
+   },
+   "edge-normal": {
+    "role": "tertiary",
+    "displayName": "Quiet Wire",
+    "canonical": "#9aa1aa",
+    "oklch": "oklch(70.6% 0.015 254.6)",
+    "dark": "#565d66",
+    "tonalRamp": [
+     "oklch(15.0% 0.009 254.6)",
+     "oklch(26.4% 0.010 254.6)",
+     "oklch(37.9% 0.011 254.6)",
+     "oklch(49.3% 0.013 254.6)",
+     "oklch(60.7% 0.014 254.6)",
+     "oklch(72.1% 0.015 254.6)",
+     "oklch(83.6% 0.014 254.6)",
+     "oklch(95.0% 0.012 254.6)"
+    ]
+   },
+   "accent-2": {
+    "role": "tertiary",
+    "displayName": "API Rust",
+    "canonical": "#c2410c",
+    "oklch": "oklch(55.3% 0.174 38.4)",
+    "dark": "#c2410c",
+    "tonalRamp": [
+     "oklch(15.0% 0.118 38.4)",
+     "oklch(26.4% 0.134 38.4)",
+     "oklch(37.9% 0.150 38.4)",
+     "oklch(49.3% 0.165 38.4)",
+     "oklch(60.7% 0.166 38.4)",
+     "oklch(72.1% 0.150 38.4)",
+     "oklch(83.6% 0.135 38.4)",
+     "oklch(95.0% 0.119 38.4)"
+    ]
+   }
+  },
+  "typographyMeta": {
+   "display": {
+    "displayName": "Display",
+    "purpose": "The hero statement only; uppercase. The ramp jumps straight from text sizes to display."
+   },
+   "headline": {
+    "displayName": "Headline",
+    "purpose": "Section headings (.phase-title); uppercase, hierarchy by weight and tracking, not size. Annotations attach after, never above."
+   },
+   "title": {
+    "displayName": "Title",
+    "purpose": "Panel and overlay headings (Settings, help, Designer); uppercase. Sidebar file name is its 17px mixed-case cousin."
+   },
+   "body": {
+    "displayName": "Body",
+    "purpose": "Running prose at 15px/1.6; ledes cap at 56-62ch."
+   },
+   "label": {
+    "displayName": "Label",
+    "purpose": "Form labels and sidebar section heads; tiny, heavy, tracked, uppercase. Sidebar heads track wider (0.18em) over a 1px ink rule."
+   },
+   "data": {
+    "displayName": "Data",
+    "purpose": "Courier Prime records everything computed or measured: inputs, facts, transcripts, receipts, HUD readouts, map text. Numerics use tabular-nums."
+   },
+   "panel-title": {
+    "displayName": "Panel Title",
+    "purpose": "Sidebar and specimen panel headings (17px/800): the largest fixed step below the display clamp."
+   },
+   "lede": {
+    "displayName": "Lede",
+    "purpose": "The hero standfirst (16px): one step above body, used once per surface."
+   },
+   "input": {
+    "displayName": "Input",
+    "purpose": "Text fields record in the typewriter voice (Courier Prime 14px)."
+   },
+   "meta": {
+    "displayName": "Meta",
+    "purpose": "The workhorse annotation step (12px): stats rows, hints, receipts context, table copy."
+   },
+   "annotation": {
+    "displayName": "Annotation",
+    "purpose": "Fine print (11.5px): settings hints, fix lists, secondary notes."
+   },
+   "state-tag": {
+    "displayName": "State Tag",
+    "purpose": "Bordered state capsules (9.5px/700 tracked, uppercase): CRITICAL PATH, DEAD CODE."
+   }
+  },
+  "shadows": [
+   {
+    "name": "shadow",
+    "value": "0 2px 6px rgba(23, 25, 28, 0.06), 0 10px 28px rgba(23, 25, 28, 0.09)",
+    "purpose": "Rest: plates sitting on the page (specimen, transcript, HUD status, minimap). Dark: 0 2px 6px rgba(0,0,0,0.35), 0 10px 28px rgba(0,0,0,0.4)."
+   },
+   {
+    "name": "shadow-lift",
+    "value": "0 16px 48px rgba(23, 25, 28, 0.16)",
+    "purpose": "Lift: floating above the document (overlay panels, menus, tour plate, toast, mobile drawer). Dark: 0 16px 48px rgba(0,0,0,0.55)."
+   }
+  ],
+  "motion": [
+   {
+    "name": "ease",
+    "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+    "purpose": "The single easing token for every transition."
+   },
+   {
+    "name": "micro",
+    "value": "0.15s",
+    "purpose": "Border/background/color transitions on controls; node and edge opacity on the canvas."
+   },
+   {
+    "name": "stamp",
+    "value": "0.18s, staggered 500ms + 380ms per row",
+    "purpose": "The one authored motion moment: GO-poll stamps land from opacity 0, scale(1.3) rotate(-4deg). Instant under prefers-reduced-motion."
+   },
+   {
+    "name": "drawer",
+    "value": "0.2s",
+    "purpose": "Mobile sidebar slide-in (transform)."
+   },
+   {
+    "name": "spinner",
+    "value": "0.8s linear infinite",
+    "purpose": "Progress ring; slows to 2s under prefers-reduced-motion rather than stopping."
+   }
+  ],
+  "breakpoints": [
+   {
+    "name": "toolbar-wrap",
+    "value": "1100px"
+   },
+   {
+    "name": "hero-stack",
+    "value": "900px"
+   },
+   {
+    "name": "drawer",
+    "value": "760px"
+   },
+   {
+    "name": "nav-hide",
+    "value": "700px"
+   },
+   {
+    "name": "table-stack",
+    "value": "480px"
+   }
+  ]
+ },
+ "components": [
+  {
+   "name": "Primary Button",
+   "kind": "button",
+   "refersTo": "button-primary",
+   "description": "The one orange block per view: the action to take (Map it, Save, Apply).",
+   "html": "<button class=\"ds-btn-primary\">Map it</button>",
+   "css": ".ds-btn-primary { background: var(--signal, #ff4400); color: var(--signal-ink, #17191c); border: 1px solid var(--signal, #ff4400); border-radius: 4px; padding: 7px 14px; font-family: Archivo, -apple-system, \"Helvetica Neue\", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; cursor: pointer; transition: filter 0.15s cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn-primary:hover { filter: brightness(1.06); } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid var(--signal, #ff4400); outline-offset: 2px; }"
+  },
+  {
+   "name": "Default Button",
+   "kind": "button",
+   "refersTo": "button-default",
+   "description": "Paper-and-ink workhorse; disabled is struck through, never faded.",
+   "html": "<button class=\"ds-btn\">Choose folder\u2026</button> <button class=\"ds-btn\" disabled>Choose folder\u2026</button>",
+   "css": ".ds-btn { background: var(--paper, #ffffff); color: var(--ink, #17191c); border: 1px solid var(--line-strong, #a9ada6); border-radius: 4px; padding: 7px 14px; font-family: Archivo, -apple-system, \"Helvetica Neue\", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.01em; white-space: nowrap; cursor: pointer; transition: border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), background 0.15s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn:hover:not(:disabled) { border-color: var(--ink, #17191c); } .ds-btn:active:not(:disabled) { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid var(--signal, #ff4400); outline-offset: 2px; } .ds-btn:disabled { text-decoration: line-through; text-decoration-thickness: 1px; color: var(--muted, #656b74); border-color: var(--line, #d8dad6); cursor: default; }"
+  },
+  {
+   "name": "Ghost Button",
+   "kind": "button",
+   "refersTo": "button-ghost",
+   "description": "Chrome-recessive control (theme toggle, Settings); border appears on hover.",
+   "html": "<button class=\"ds-btn-ghost\">Settings</button>",
+   "css": ".ds-btn-ghost { background: transparent; color: var(--ink, #17191c); border: 1px solid transparent; border-radius: 4px; padding: 7px 14px; font-family: Archivo, -apple-system, \"Helvetica Neue\", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn-ghost:hover { border-color: var(--line-strong, #a9ada6); } .ds-btn-ghost:active { transform: translateY(1px); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--signal, #ff4400); outline-offset: 2px; }"
+  },
+  {
+   "name": "AI Button",
+   "kind": "button",
+   "refersTo": "button-ai",
+   "description": "Marks every Claude-powered control in Service Violet (Enrich, Debug, Designer).",
+   "html": "<button class=\"ds-btn-ai\">Enrich</button>",
+   "css": ".ds-btn-ai { background: transparent; color: var(--service, #7c3aed); border: 1px solid color-mix(in srgb, var(--service, #7c3aed) 55%, transparent); border-radius: 4px; padding: 7px 14px; font-family: Archivo, -apple-system, \"Helvetica Neue\", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), background 0.15s cubic-bezier(0.22, 1, 0.36, 1); } .ds-btn-ai:hover { background: color-mix(in srgb, var(--service, #7c3aed) 8%, transparent); border-color: var(--service, #7c3aed); } .ds-btn-ai:active { transform: translateY(1px); } .ds-btn-ai:focus-visible { outline: 2px solid var(--signal, #ff4400); outline-offset: 2px; }"
+  },
+  {
+   "name": "Text Input",
+   "kind": "input",
+   "refersTo": "input-text",
+   "description": "Data is typed here, so the face is mono; focus is an orange ring with an orange caret.",
+   "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"https://github.com/owner/repo\" aria-label=\"GitHub repository URL\">",
+   "css": ".ds-input { background: var(--paper, #ffffff); border: 1px solid var(--line-strong, #a9ada6); color: var(--ink, #17191c); border-radius: 4px; padding: 9px 12px; font-size: 14px; font-family: \"Courier Prime\", \"Courier New\", ui-monospace, Menlo, monospace; width: 100%; outline: none; caret-color: var(--signal, #ff4400); transition: border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.15s cubic-bezier(0.22, 1, 0.36, 1); } .ds-input::placeholder { color: var(--muted, #656b74); } .ds-input:focus { border-color: var(--signal, #ff4400); box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal, #ff4400) 18%, transparent); }"
+  },
+  {
+   "name": "Filter Chip",
+   "kind": "chip",
+   "refersTo": "chip",
+   "description": "Cluster filters; active is an inverted ink plate \u2014 ink, not orange.",
+   "html": "<button class=\"ds-chip\">services \u00b7 12</button> <button class=\"ds-chip ds-chip-active\">routes \u00b7 8</button>",
+   "css": ".ds-chip { padding: 4px 12px; border-radius: 3px; font-size: 12px; font-weight: 600; font-family: Archivo, -apple-system, \"Helvetica Neue\", Helvetica, Arial, sans-serif; background: transparent; border: 1px solid var(--line-strong, #a9ada6); color: var(--ink-soft, #3b3e44); letter-spacing: 0.02em; cursor: pointer; transition: border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s cubic-bezier(0.22, 1, 0.36, 1); } .ds-chip:hover { border-color: var(--ink, #17191c); color: var(--ink, #17191c); } .ds-chip:focus-visible { outline: 2px solid var(--signal, #ff4400); outline-offset: 2px; } .ds-chip-active { background: var(--ink, #17191c); border-color: var(--ink, #17191c); color: var(--paper, #ffffff); }"
+  },
+  {
+   "name": "Mini Chip",
+   "kind": "chip",
+   "refersTo": "mini-chip",
+   "description": "Clickable file reference in the sidebar; mono, signal family on hover.",
+   "html": "<button class=\"ds-mini-chip\">js/render.js</button>",
+   "css": ".ds-mini-chip { padding: 2px 9px; font-size: 11.5px; border-radius: 3px; font-weight: 600; background: var(--paper, #ffffff); border: 1px solid var(--line-strong, #a9ada6); color: var(--ink-soft, #3b3e44); font-family: \"Courier Prime\", \"Courier New\", ui-monospace, Menlo, monospace; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; transition: border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1), color 0.15s cubic-bezier(0.22, 1, 0.36, 1); } .ds-mini-chip:hover { border-color: var(--signal, #ff4400); color: var(--signal-text, #c53500); } .ds-mini-chip:focus-visible { outline: 2px solid var(--signal, #ff4400); outline-offset: 2px; }"
+  },
+  {
+   "name": "GO Stamp",
+   "kind": "custom",
+   "refersTo": "go-stamp",
+   "description": "Verification verdict plate from the GO poll; NO-GO swaps to red. The landing stamps land with the one authored motion moment.",
+   "html": "<span class=\"ds-stamp\">GO</span> <span class=\"ds-stamp ds-stamp-nogo\">NO-GO</span>",
+   "css": ".ds-stamp { display: inline-block; font-family: \"Courier Prime\", \"Courier New\", ui-monospace, Menlo, monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; color: var(--go, #1e7d3f); border: 1.5px solid var(--go, #1e7d3f); padding: 0 7px; border-radius: 2px; } .ds-stamp-nogo { color: var(--nogo, #d61f45); border-color: var(--nogo, #d61f45); }"
+  },
+  {
+   "name": "Receipt",
+   "kind": "card",
+   "refersTo": "receipt",
+   "description": "Computed-summary plate (reach and route results): mono, tabular numerals, square.",
+   "html": "<div class=\"ds-receipt\">UPSTREAM of render.js \u2014 6 files \u00b7 7 imports \u00b7 1 hop</div>",
+   "css": ".ds-receipt { padding: 8px 11px; font-size: 12px; border: 1px solid var(--ink, #17191c); border-radius: 0; background: var(--paper-2, #f4f4f1); color: var(--ink-soft, #3b3e44); font-family: \"Courier Prime\", \"Courier New\", ui-monospace, Menlo, monospace; font-variant-numeric: tabular-nums; }"
+  },
+  {
+   "name": "Phase Marker",
+   "kind": "custom",
+   "refersTo": "headline",
+   "description": "Datum-rail furniture: the 2px ink rule, the paper-on-ink phase number, the tracked headline with its inline plain-language annotation.",
+   "html": "<div class=\"ds-phase\"><span class=\"ds-phase-no\">002</span><div class=\"ds-phase-body\"><h3 class=\"ds-phase-title\">Read it <span class=\"ds-phase-plain\">\u2014 what the analyzer computed, nothing invented</span></h3></div></div>",
+   "css": ".ds-phase { display: grid; grid-template-columns: 72px 1fr; border-left: 2px solid var(--ink, #17191c); min-height: 84px; } .ds-phase-no { font-family: \"Courier Prime\", \"Courier New\", ui-monospace, Menlo, monospace; font-size: 12px; font-weight: 700; color: var(--paper, #ffffff); background: var(--ink, #17191c); align-self: start; justify-self: start; padding: 4px 10px 3px 8px; letter-spacing: 0.1em; margin-top: 24px; } .ds-phase-body { padding: 24px 0; } .ds-phase-title { margin: 4px 0 0; font-family: Archivo, -apple-system, \"Helvetica Neue\", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink, #17191c); } .ds-phase-plain { color: var(--muted, #656b74); font-weight: 600; letter-spacing: 0.06em; text-transform: none; font-family: \"Courier Prime\", \"Courier New\", ui-monospace, Menlo, monospace; font-size: 12px; }"
+  }
+ ],
+ "narrative": {
+  "northStar": "The Flight Plan",
+  "overview": "ArchMap is drawn as Apollo-program documentation put to work: a mission briefing for the codebase you own. The page is white bond paper carrying ink rules, numbered phases down one datum rail, checklist rows, typewritten data, and verification stamps. It deliberately refuses the dark dev-tool hero \u2014 no terminal window, no glow. Light (\"day ops\") is the native register, a document read at a desk in daylight; dark (\"Night Ops\") is a full-parity optional mode \u2014 the same vocabulary in a dark room, never a different design.\n\nColor is meaning, never mood. One international orange is the signal \u2014 the action to take \u2014 and it commits at block scale or not at all. Green stamps GO, red stamps NO-GO, and the six-color cluster palette on the map is the product\u2019s own semantics (client / route / service / db / external / critical), carried straight from CSS custom properties into the drawn SVG. Everything else is ink on paper.\n\nThe register is documentary: claims come with evidence, empty states are drawn and worded honestly (\"0. None.\"), state changes are carried in the line itself (dashed = dead, struck = disabled), and exactly one motion moment is authored \u2014 the GO-poll stamps landing on the landing page.",
+  "keyCharacteristics": [
+   "White bond paper with a faint plot-grid dot pattern; structure drawn in ink rules, not boxes-on-gray.",
+   "One orange signal, committed at block scale; orange-as-text drops to a darker AA-safe tone.",
+   "Two type voices: Archivo speaks, Courier Prime records.",
+   "Numbered phases on a single left datum rail; checklist rows; GO/NO-GO stamps.",
+   "Square document plates, gently rounded controls; depth from 2px ink borders before shadow.",
+   "Light is native, dark is parity; every token is defined in both registers."
+  ],
+  "rules": [
+   {
+    "name": "The One Signal Rule",
+    "body": "Orange is the single voice of action and it commits at block scale \u2014 a filled button, an active toggle \u2014 or drops to signal-text when written on paper. If orange is decorating rather than signaling the next action, it is wrong.",
+    "section": "colors"
+   },
+   {
+    "name": "The Six-Digit Rule",
+    "body": "The graph palette tokens stay 6-digit hex. render.js reads them from CSS custom properties at draw time and composes alpha variants by appending hex pairs (`${color}10`, `${color}1f`); any other color format breaks the canvas.",
+    "section": "colors"
+   },
+   {
+    "name": "The Borrowed-Meaning Rule",
+    "body": "Chrome may wear a graph color only when it points at that graph meaning: upstream buttons wear Service Violet like the traces they draw, downstream buttons wear Route Green, AI controls wear Service Violet. Never recruit a cluster color as decoration.",
+    "section": "colors"
+   },
+   {
+    "name": "Dark Parity",
+    "body": "Every color token is redefined under [data-theme=\"dark\"] (Night Ops): paper #121417, ink #e8eaed, signal #ff5a1f, signal-text #ff8a5c, go #58c07d, nogo #ff4d6e, and a lightened graph palette. A new color that exists in only one theme is unfinished.",
+    "section": "colors"
+   },
+   {
+    "name": "The Two Registers Rule",
+    "body": "Archivo speaks (headings, prose, buttons); Courier Prime records (data, evidence, ids, readouts). If a value was computed from the graph, it is set in mono.",
+    "section": "typography"
+   },
+   {
+    "name": "The No-Kicker Rule",
+    "body": "Nothing sits above a heading \u2014 no eyebrow, no kicker. Context attaches after the heading as a muted inline annotation, or on the datum rail as a phase number.",
+    "section": "typography"
+   },
+   {
+    "name": "The Rasterized-Export Exception",
+    "body": "Standalone SVG/PNG image exports set a system mono stack (ui-monospace, SFMono-Regular, Menlo, Consolas) instead of Courier Prime, because webfonts cannot load inside a serialized raster. This is the intended offline degradation, not drift.",
+    "section": "typography"
+   },
+   {
+    "name": "The Datum Rail Rule",
+    "body": "Every landing section registers against the one left ink rule. New sections join the rail as numbered phases; they do not float free.",
+    "section": "layout"
+   },
+   {
+    "name": "The Canvas Leads Rule",
+    "body": "In the app, chrome recedes: the map owns the viewport, the sidebar and HUD annotate it from the edges, and nothing overlays the canvas center except transient HUD plates.",
+    "section": "layout"
+   },
+   {
+    "name": "The Ink-Before-Shadow Rule",
+    "body": "If an element needs presence, give it an ink border first (2px for plates, 1px for rows and controls). Shadow is reserved for elements that genuinely sit above the paper; nothing gets a shadow instead of a border.",
+    "section": "elevation"
+   },
+   {
+    "name": "The Plates-Square, Controls-Rounded Rule",
+    "body": "A surface that presents information is square with an ink rule; a surface you press is rounded 2\u20134px. Do not round a document plate, and do not square a button.",
+    "section": "shapes"
+   },
+   {
+    "name": "The Line-Form State Rule",
+    "body": "Dead is dashed, disabled is struck, circular is dashed-long. State must survive greyscale: the line form carries it, color only reinforces it.",
+    "section": "shapes"
+   }
+  ],
+  "dos": [
+   "Do commit orange at block scale \u2014 a filled primary button, an active toggle \u2014 and switch to signal-text (#c53500) the moment orange becomes text on paper.",
+   "Do draw structure with ink rules: 2px ink for plate and document boundaries, 1px hairline for rows inside them, an inverted ink plate for the strongest emphasis.",
+   "Do set every computed or measured value in Courier Prime, with tabular-nums where digits align (receipts, HUD, GO rows).",
+   "Do define any new color token in both :root and [data-theme=\"dark\"], and keep graph palette entries 6-digit hex (the renderer appends alpha hex pairs).",
+   "Do carry state in line form \u2014 dashed for dead, struck for disabled, 1.5px-bordered uppercase stamps for verdicts.",
+   "Do add new icons to the inline sprite as 16-viewBox, 1.6px-stroke, round-capped drawings on currentColor.",
+   "Do keep zero-states drawn and worded honestly (\"0. None.\" / the specimen ghost) \u2014 an empty answer is still an answer."
+  ],
+  "donts": [
+   "Don't put an eyebrow or kicker above a heading; annotations attach after the heading, muted and inline.",
+   "Don't use emoji or glyph-font icons anywhere, including renderer-generated buttons \u2014 those use words.",
+   "Don't round a document plate (radius stays 0) or give shadows to things an ink border already grounds; the pill shape stays confined to the hint pill and the beta tag.",
+   "Don't fade disabled controls \u2014 strike them through.",
+   "Don't recruit cluster colors for decoration; chrome wears a graph color only when it triggers that graph meaning.",
+   "Don't author new motion moments; the GO-poll stamp sequence is the only one, and everything else stays at 0.15s micro-transitions honoring prefers-reduced-motion.",
+   "Don't add UI libraries, icon packages, or extra font dependencies: the world is hand-drawn vanilla CSS/SVG, fonts stay Google-hosted Archivo + Courier Prime over real system fallbacks, and render.js / query.js / validate.js stay dependency-free because exports embed them verbatim."
+  ]
+ }
+}
